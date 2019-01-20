@@ -1,5 +1,8 @@
 # 499-tianhanl
 
+name: Tianhang Liu
+email: tianhanl@usc.edu
+
 ## Project Description
 
 Chrip is clone of Twiter with storage component, service component, and frontend component using gRPC.
