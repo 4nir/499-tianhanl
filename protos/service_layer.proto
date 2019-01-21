@@ -53,7 +53,7 @@ message MonitorRequest { string username = 1; }
 
 message MonitorReply { Chirp chirp = 1; }
 
-service KeyValueStore {
+service ServiceLayer {
   rpc register(RegisterRequest) returns (RegisterReply) {}
   rpc chirp(ChirpRequest) returns (ChirpReply) {}
   rpc follow(FollowRequest) returns (FollowReply) {}
