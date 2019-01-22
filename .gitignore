@@ -44,3 +44,4 @@ dist
 key_value_store_server
 
 third_party/*
+.vscode
