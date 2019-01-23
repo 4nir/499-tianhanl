@@ -23,11 +23,11 @@
 #include <iostream>
 #include <string>
 #include <thread>
-#include <unordered_map>
+
+#include "store.h"
 
 #include <grpcpp/grpcpp.h>
 #include <grpc/support/log.h>
-
 #include "./dist/key_value_store.grpc.pb.h"
 
 using chirp::KeyValueStore;
@@ -40,47 +40,6 @@ using grpc::ServerCompletionQueue;
 using grpc::ServerContext;
 using grpc::Status;
 using grpc::StatusCode;
-class Store
-{
-public:
-  // returns empty string if specific keyed item is not exist
-  std::string get(std::string key)
-  {
-    auto search_result = map_.find(key);
-    if (search_result == map_.end())
-    {
-      return "";
-    }
-    else
-    {
-      return search_result->second;
-    }
-  }
-
-  bool put(std::string key, std::string value)
-  {
-    map_[key] = value;
-    return true;
-  }
-
-  // return false if key is not exist
-  bool remove(std::string key)
-  {
-    auto search_result = map_.find(key);
-    if (search_result == map_.end())
-    {
-      return false;
-    }
-    else
-    {
-      map_.erase(search_result);
-      return true;
-    }
-  }
-
-private:
-  std::unordered_map<std::string, std::string> map_;
-};
 
 class BaseCallData
 {
@@ -130,7 +89,7 @@ public:
 
       std::string key = request_.key();
       std::string value = request_.value();
-      bool put_result = store_->put(key, value);
+      bool put_result = store_->Put(key, value);
       status_ = FINISH;
       if (put_result)
       {
