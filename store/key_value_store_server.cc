@@ -41,6 +41,8 @@ using grpc::ServerContext;
 using grpc::Status;
 using grpc::StatusCode;
 
+// Base for all CallDatas for polymorphism in KeyValueStoreServerImpl::HandleRcps
+// Defines basic state machine CREATE -> PROCESS -> FINISH
 class BaseCallData
 {
 public:
@@ -61,6 +63,7 @@ protected:
   CallStatus status_; // The current serving state.
 };
 
+// CallData for put method will put user supplied key and value into store
 class PutCallData : public BaseCallData
 {
 public:
