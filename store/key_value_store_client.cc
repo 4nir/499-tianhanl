@@ -58,16 +58,15 @@ class KeyValueStoreClient {
   }
 
   void AsyncCompleteRpc() {
-    void *got_tag;
+    AsyncClientCall *got_tag;
     bool ok = false;
-    while (cq_.Next(&got_tag, &ok)) {
-      AsyncClientCall *call = static_cast<AsyncClientCall *>(got_tag);
+    while (cq_.Next((void **)&got_tag, &ok)) {
+      std::unique_ptr<AsyncClientCall> call(got_tag);
       GPR_ASSERT(ok);
       if (call->status.ok()) {
         // Todo: use glog for logging
       } else {
       }
-      delete call;
     }
   }
 
