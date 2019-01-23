@@ -24,8 +24,8 @@
 #include <string>
 #include <thread>
 
-#include <grpcpp/grpcpp.h>
 #include <grpc/support/log.h>
+#include <grpcpp/grpcpp.h>
 
 #include "./dist/key_value_store.grpc.pb.h"
 
@@ -41,61 +41,65 @@ using grpc::Status;
 const std::string SERVER_ADDRESS = "0.0.0.0:50000";
 
 // TODO: This client should be able to be used as standalone package
-class KeyValueStoreClient
-{
-public:
+class KeyValueStoreClient {
+ public:
   explicit KeyValueStoreClient(std::shared_ptr<Channel> channel)
       : stub_(KeyValueStore::NewStub(channel)) {}
-  void Put(const std::string &key, const std::string &value)
-  {
+
+  void Put(const std::string &key, const std::string &value) {
     PutRequest request;
     request.set_key(key);
     request.set_value(value);
     AsyncClientCall *call = new AsyncClientCall;
-    call->response_reader = stub_->PrepareAsyncput(&call->context, request, &cq_);
+    call->response_reader =
+        stub_->PrepareAsyncput(&call->context, request, &cq_);
     call->response_reader->StartCall();
     call->response_reader->Finish(&call->reply, &call->status, (void *)call);
   }
 
-  void AsyncCompleteRpc()
-  {
+  void AsyncCompleteRpc() {
     void *got_tag;
     bool ok = false;
-    while (cq_.Next(&got_tag, &ok))
-    {
+    while (cq_.Next(&got_tag, &ok)) {
       AsyncClientCall *call = static_cast<AsyncClientCall *>(got_tag);
       GPR_ASSERT(ok);
-      if (call->status.ok())
-      {
-        std::cout << "Put Success" << std::endl;
-      }
-      else
-      {
-        std::cout << "Put Failed" << std::endl;
+      if (call->status.ok()) {
+        // Todo: use glog for logging
+      } else {
       }
       delete call;
     }
   }
 
-private:
-  struct AsyncClientCall
-  {
+ private:
+  //  CallData object used to maintain context of a rpc call
+  struct AsyncClientCall {
+    // Put reply object
     PutReply reply;
+
+    // Context for the rpc
     ClientContext context;
+
+    // Status for the rpc
     Status status;
+
+    // Means to read response from the server
     std::unique_ptr<ClientAsyncResponseReader<PutReply>> response_reader;
   };
 
+  // view of the serer's exposed services.
   std::unique_ptr<KeyValueStore::Stub> stub_;
+
+  // The producer-consumer queue used to communicate asynchronously with the
+  // gRPC runtime.
   CompletionQueue cq_;
 };
 
-int main(int argc, char **argv)
-{
-  KeyValueStoreClient store(grpc::CreateChannel(
-      SERVER_ADDRESS, grpc::InsecureChannelCredentials()));
-  std::thread thread_ = std::thread(&KeyValueStoreClient::AsyncCompleteRpc, &store);
-  store.Put("test", "test");
+int main(int argc, char **argv) {
+  KeyValueStoreClient store(
+      grpc::CreateChannel(SERVER_ADDRESS, grpc::InsecureChannelCredentials()));
+  std::thread thread_ =
+      std::thread(&KeyValueStoreClient::AsyncCompleteRpc, &store);
   thread_.join();
   return 0;
 }
