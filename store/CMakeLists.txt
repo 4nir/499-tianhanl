@@ -26,7 +26,7 @@ include_directories("${DIST_DIR}")
 
 add_library(store STATIC store.cc store.h)
 
-add_executable(key_value_store_server "key_value_store_server.cc"
+add_executable(key_value_store_server key_value_store_server.cc
     ${store_proto_srcs}
     ${store_grpc_srcs})
 target_link_libraries(key_value_store_server
@@ -34,9 +34,20 @@ target_link_libraries(key_value_store_server
     ${_PROTOBUF_LIBPROTOBUF}
     store)
 
-add_executable(key_value_store_client "key_value_store_client.cc"
+add_executable(key_value_store_client key_value_store_client.cc
     ${store_proto_srcs}
     ${store_grpc_srcs})
 target_link_libraries(key_value_store_client
     ${_GRPC_GRPCPP_UNSECURE}
     ${_PROTOBUF_LIBPROTOBUF})
+
+add_executable(store_test store_test.cc)
+target_link_libraries(store_test PUBLIC
+    gtest
+    gtest_main
+    store
+)
+add_test(
+    NAME store_test
+    COMMAND store_test
+)

@@ -22,6 +22,7 @@ set(THIRD_PARTY_DIR "third_party")
 
 # Add googletest
 add_subdirectory(${THIRD_PARTY_DIR}/googletest)
+enable_testing()
 # Add gflag
 # set(BENCHMARK_ENABLE_TESTING OFF CACHE BOOL "Suppressing benchmark's tests" FORCE)
 find_package(gflags REQUIRED)
