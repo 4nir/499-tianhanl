@@ -70,7 +70,8 @@ class KeyValueStoreServerImpl final {
 
  private:
   void HandleRpcs() {
-    new PutCallData(&service_, cq_.get(), store_);
+    PutCallData *put_call_data = new PutCallData(&service_, cq_.get(), store_);
+    put_call_data->Init();
     void *tag;
     bool ok;
     while (true) {

@@ -10,13 +10,13 @@
 class Store {
  public:
   // returns empty string if specific keyed item is not exist
-  std::string Get(std::string key);
+  std::string Get(const std::string &key);
 
   // returns false when the key and value cannot be put into map_
-  bool Put(std::string key, std::string value);
+  bool Put(const std::string &key, const std::string &value);
 
   // return false if key is not exist
-  bool Remove(std::string key);
+  bool Remove(const std::string &key);
 
  private:
   // stores key value pairs using default hash mechanism

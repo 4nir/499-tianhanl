@@ -20,11 +20,18 @@ using grpc::StatusCode;
 // Base for all CallDatas for polymorphism in
 // KeyValueStoreServerImpl::HandleRcps Defines basic state machine CREATE ->
 // PROCESS -> FINISH
+// NOTICE: Pointer is expected to be self-destructing, and caller should not
+// delete it.
 class BaseCallData {
  public:
   BaseCallData() : status_(CREATE) {}
 
+  // Will be called to move status_ into next status, and perform processing
+  // according to current status.
   virtual void Proceed() = 0;
+
+  // Initialize call data to process initial status.
+  void Init() { Proceed(); }
 
  protected:
   enum CallStatus { CREATE, PROCESS, FINISH };
@@ -36,9 +43,8 @@ class PutCallData : public BaseCallData {
  public:
   PutCallData(KeyValueStore::AsyncService *service, ServerCompletionQueue *cq,
               Store *store)
-      : service_(service), cq_(cq), responder_(&ctx_), store_(store) {
-    Proceed();
-  }
+      : service_(service), cq_(cq), responder_(&ctx_), store_(store) {}
+
   void Proceed() override {
     if (status_ == CREATE) {
       // Make this instance progress to the PROCESS state.
@@ -50,10 +56,11 @@ class PutCallData : public BaseCallData {
       // Spawn a new CallData instance to serve new clients while we process
       // the one for this CallData. The instance will deallocate itself as
       // part of its FINISH state.
-      new PutCallData(service_, cq_, store_);
+      PutCallData *next = new PutCallData(service_, cq_, store_);
+      next->Init();
 
-      std::string key = request_.key();
-      std::string value = request_.value();
+      const std::string &key = request_.key();
+      const std::string &value = request_.value();
       bool ok = store_->Put(key, value);
       status_ = FINISH;
       if (ok) {

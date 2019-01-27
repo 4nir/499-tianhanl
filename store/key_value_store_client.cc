@@ -28,6 +28,7 @@
 #include <grpcpp/grpcpp.h>
 
 #include "./dist/key_value_store.grpc.pb.h"
+#include "key_value_store_call.cc"
 
 using chirp::KeyValueStore;
 using chirp::PutReply;
@@ -50,7 +51,7 @@ class KeyValueStoreClient {
     PutRequest request;
     request.set_key(key);
     request.set_value(value);
-    AsyncClientCall *call = new AsyncClientCall;
+    PutClientCall *call = new PutClientCall;
     call->response_reader =
         stub_->PrepareAsyncput(&call->context, request, &cq_);
     call->response_reader->StartCall();
@@ -58,10 +59,10 @@ class KeyValueStoreClient {
   }
 
   void AsyncCompleteRpc() {
-    AsyncClientCall *got_tag;
+    PutClientCall *got_tag;
     bool ok = false;
     while (cq_.Next((void **)&got_tag, &ok)) {
-      std::unique_ptr<AsyncClientCall> call(got_tag);
+      std::unique_ptr<PutClientCall> call(got_tag);
       GPR_ASSERT(ok);
       if (call->status.ok()) {
         // Todo: use glog for logging
@@ -71,21 +72,6 @@ class KeyValueStoreClient {
   }
 
  private:
-  //  CallData object used to maintain context of a rpc call
-  struct AsyncClientCall {
-    // Put reply object
-    PutReply reply;
-
-    // Context for the rpc
-    ClientContext context;
-
-    // Status for the rpc
-    Status status;
-
-    // Means to read response from the server
-    std::unique_ptr<ClientAsyncResponseReader<PutReply>> response_reader;
-  };
-
   // view of the serer's exposed services.
   std::unique_ptr<KeyValueStore::Stub> stub_;
 
