@@ -38,9 +38,15 @@ cmake_install.cmake
 Makefile
 CPackConfig.cmake
 CPackSourceConfig.cmake
+CTestTestfile.cmake
+DartConfiguration.tcl
 
 #generated files
 dist
 key_value_store_server
+key_value_store_client
+store_test
+Testing/
 
 third_party/*
+.vscode

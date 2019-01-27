@@ -24,13 +24,32 @@ add_custom_command(
 # Include generated *.pb.h files
 include_directories("${DIST_DIR}")
 
-foreach(_target key_value_store_server)
-  add_executable(${_target} "${_target}.cc"
+add_library(store STATIC store.cc store.h)
+
+add_executable(key_value_store_server key_value_store_server.cc
     ${store_proto_srcs}
     ${store_grpc_srcs}
-  )
-  target_link_libraries(${_target}
+    key_value_store_call_data.cc)
+target_link_libraries(key_value_store_server
+    ${_GRPC_GRPCPP_UNSECURE}
+    ${_PROTOBUF_LIBPROTOBUF}
+    store)
+
+add_executable(key_value_store_client key_value_store_client.cc
+    ${store_proto_srcs}
+    ${store_grpc_srcs}
+    key_value_store_call.cc)
+target_link_libraries(key_value_store_client
     ${_GRPC_GRPCPP_UNSECURE}
     ${_PROTOBUF_LIBPROTOBUF})
-  
-endforeach()
+
+add_executable(store_test store_test.cc)
+target_link_libraries(store_test PUBLIC
+    gtest
+    gtest_main
+    store
+)
+add_test(
+    NAME store_test
+    COMMAND store_test
+)
