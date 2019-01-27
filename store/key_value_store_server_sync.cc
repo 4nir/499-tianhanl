@@ -19,11 +19,12 @@
 #include <iostream>
 #include <memory>
 #include <string>
+
+#include "./dist/key_value_store.grpc.pb.h"
 #include "store.h"
 
 #include <grpc/support/log.h>
 #include <grpcpp/grpcpp.h>
-#include "./dist/key_value_store.grpc.pb.h"
 
 using chirp::DeleteReply;
 using chirp::DeleteRequest;
@@ -61,6 +62,7 @@ class KeyValueStoreServiceImpl final : public KeyValueStore::Service {
     }
   }
 
+  // Bidirectional streaming key and value
   Status get(ServerContext* context,
              ServerReaderWriter<GetReply, GetRequest>* stream) override {
     GetRequest request;

@@ -50,6 +50,13 @@ target_link_libraries(key_value_store_client
     ${_GRPC_GRPCPP_UNSECURE}
     ${_PROTOBUF_LIBPROTOBUF})
 
+add_executable(key_value_store_client_sync key_value_store_client_sync.cc
+    ${store_proto_srcs}
+    ${store_grpc_srcs})
+target_link_libraries(key_value_store_client_sync
+    ${_GRPC_GRPCPP_UNSECURE}
+    ${_PROTOBUF_LIBPROTOBUF})
+
 add_executable(store_test store_test.cc)
 target_link_libraries(store_test PUBLIC
     gtest
