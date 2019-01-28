@@ -49,6 +49,8 @@ key_value_store_server_sync
 key_value_store_client_sync
 key_value_store_client_sync_test
 store_test
+store_adapter
+store_adapter_test
 Testing/
 
 third_party/*
