@@ -20,7 +20,7 @@ bool Store::Put(const std::string &key, const std::string &value) {
 bool Store::Remove(const std::string &key) {
   std::lock_guard<std::mutex> guard(map_mutex_);
   auto search_result = map_.find(key);
-  bool ok = search_result == map_.end();
+  bool ok = search_result != map_.end();
   if (ok) {
     map_.erase(search_result);
   }
