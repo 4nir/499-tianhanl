@@ -17,8 +17,10 @@ using chirp::UserInfo;
 // previous stored value.
 class StoreAdapter {
  public:
-  StoreAdapter() { store_client_ = new KeyValueStoreClient; }
-  ~StoreAdapter() { delete store_client_; }
+  StoreAdapter() {
+    store_client_ =
+        std::unique_ptr<KeyValueStoreClient>(new KeyValueStoreClient);
+  }
   void Init();
   // Stores serialized `UserInfo`. Returns true if succeed.
   bool StoreUserInfo(const UserInfo& user_info);
@@ -32,7 +34,7 @@ class StoreAdapter {
   Chirp GetChirp(const std::string& chirp_id);
 
  private:
-  KeyValueStoreClient* store_client_;
+  std::unique_ptr<KeyValueStoreClient> store_client_;
 };
 
 #endif
