@@ -45,6 +45,9 @@ DartConfiguration.tcl
 dist
 key_value_store_server
 key_value_store_client
+key_value_store_server_sync
+key_value_store_client_sync
+key_value_store_client_sync_test
 store_test
 Testing/
 
