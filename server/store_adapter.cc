@@ -3,7 +3,7 @@
 void StoreAdapter::Init() { store_client_->Init(); }
 
 bool StoreAdapter::StoreUserInfo(const UserInfo& user_info) {
-  std::string serialized_string = "";
+  std::string serialized_string;
   user_info.SerializeToString(&serialized_string);
   return store_client_->Put(user_info.username(), serialized_string);
 }
@@ -11,7 +11,7 @@ bool StoreAdapter::StoreUserInfo(const UserInfo& user_info) {
 UserInfo StoreAdapter::GetUserInfo(const std::string& username) {
   // Get serialized UserInfo for the username and store in `serialized_string`
   std::vector<std::string> keys = {username};
-  std::string serialized_string = "";
+  std::string serialized_string;
   store_client_->Get(keys, [&serialized_string](std::string value) {
     serialized_string = value;
   });
@@ -22,7 +22,7 @@ UserInfo StoreAdapter::GetUserInfo(const std::string& username) {
 }
 
 bool StoreAdapter::StoreChirp(const Chirp& chirp) {
-  std::string serialized_string = "";
+  std::string serialized_string;
   chirp.SerializeToString(&serialized_string);
   return store_client_->Put(chirp.id(), serialized_string);
 }
@@ -30,7 +30,7 @@ bool StoreAdapter::StoreChirp(const Chirp& chirp) {
 Chirp StoreAdapter::GetChirp(const std::string& chirp_id) {
   // Get serialized Chirp for the chirp_id and store in `serialized_string`
   std::vector<std::string> keys = {chirp_id};
-  std::string serialized_string = "";
+  std::string serialized_string;
   store_client_->Get(keys, [&serialized_string](std::string value) {
     serialized_string = value;
   });
