@@ -19,5 +19,5 @@ bool Store::Put(const std::string &key, const std::string &value) {
 // return false if key is not exist
 bool Store::Remove(const std::string &key) {
   std::lock_guard<std::mutex> guard(map_mutex_);
-  return map_.erase(key) != 0;
+  return map_.erase(key);
 }
