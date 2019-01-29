@@ -29,24 +29,26 @@ using grpc::Status;
 
 const std::string STORE_SERVER_ADDRESS("0.0.0.0:50000");
 
+// Client interface to communicate with key_value_store_server_sync.
 class KeyValueStoreClient {
  public:
-  // initilize the client stub_
-  void init();
+  // Initializes the client stub_. Should be called before `Put`, `Get` and
+  // `DeleteKey` were called.
+  void Init();
 
-  // Put key-value pair into store, return true if succeed
+  // Puts key-value pair into store, return true if succeed
   bool Put(const std::string& key, const std::string& value);
 
-  // Get each item for key in keys, when server respond  `hanlde_response` will
-  // be called with the value server retrived for the key.
+  // Gets each item for key in keys. `hanle_response` will be called each time
+  // `Get` receives a new reponse from stream.
   bool Get(const std::vector<std::string>& keys,
            std::function<void(std::string)> handle_response);
 
-  // Delete the key-value pair in store for the key, return true if succeed
+  // Deletes the key-value pair in store for the key, return true if succeed
   bool DeleteKey(const std::string& key);
 
  private:
-  // Make a get request object with the key
+  // Makes a get request object with the key
   GetRequest MakeGetRequest(const std::string& key);
   //  Interface for RPCs to call
   std::unique_ptr<KeyValueStore::Stub> stub_;

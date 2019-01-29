@@ -5,17 +5,17 @@
 
 class KeyValueStoreClientSyncTest : public ::testing::Test {
  protected:
-  void SetUp() override { client.init(); }
+  void SetUp() override { client.Init(); }
   KeyValueStoreClient client;
 };
 
+// `Put` should store corresponding key value pair
 TEST_F(KeyValueStoreClientSyncTest, PutShouldStoreValue) {
-  // `Put` should store corresponding key value pair
   EXPECT_TRUE(client.Put("test", "test"));
 }
 
+// Givent a existed key `Get` should retrive its corresponding value
 TEST_F(KeyValueStoreClientSyncTest, GetShouldRetriveSingleValue) {
-  // Givent a existed key `Get` should retrive its corresponding value
   client.Put("test", "test");
   std::vector<std::string> keys = {"test"};
   std::string result = "";
@@ -23,6 +23,8 @@ TEST_F(KeyValueStoreClientSyncTest, GetShouldRetriveSingleValue) {
   EXPECT_EQ("test", result);
 }
 
+// After `DeleteKey` was called for a key, `Get` should received empty value for
+// the key.
 TEST_F(KeyValueStoreClientSyncTest, DeleteKeyShouldRemoveItemForKey) {
   // Store should have ("test", "test")
   EXPECT_TRUE(client.Put("test", "test"));

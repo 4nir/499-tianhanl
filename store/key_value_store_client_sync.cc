@@ -1,6 +1,6 @@
 #include "key_value_store_client_sync.h"
 
-void KeyValueStoreClient::init() {
+void KeyValueStoreClient::Init() {
   this->stub_ = KeyValueStore::NewStub(grpc::CreateChannel(
       STORE_SERVER_ADDRESS, grpc::InsecureChannelCredentials()));
 }
@@ -33,7 +33,7 @@ bool KeyValueStoreClient::Get(
       stub_->get(&context));
 
   // Send request for each key to server in a separate thread
-  std::thread writer([stream, keys, this]() {
+  std::thread writer([stream, &keys, this]() {
     for (const std::string& key : keys) {
       stream->Write(MakeGetRequest(key));
     }
