@@ -12,9 +12,9 @@ using chirp::Chirp;
 using chirp::Timestamp;
 using chirp::UserInfo;
 
-// Handles interaction with store
-// In current implementation, each `Store` method will replace fully replaced
-// previous stored value.
+// Handles the serialization/deserialization of messags and the interaction with
+// store server. In current implementation, each `Store` method will fully
+// replace previous stored value.
 class StoreAdapter {
  public:
   StoreAdapter() {
@@ -34,6 +34,7 @@ class StoreAdapter {
   Chirp GetChirp(const std::string& chirp_id);
 
  private:
+  // client interface used to communicate with store server
   std::unique_ptr<KeyValueStoreClient> store_client_;
 };
 

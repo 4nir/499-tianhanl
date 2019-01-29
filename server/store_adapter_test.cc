@@ -10,8 +10,8 @@ class StoreAdapterTest : public ::testing::Test {
   StoreAdapter store_adapter_;
 };
 
+//  `StoreUserInfo` should store the UserInfo into store server
 TEST_F(StoreAdapterTest, StoreUserInfoShouldStore) {
-  //  `StoreUserInfo` should store the user into store server
   UserInfo test_info;
   test_info.set_username("test");
   test_info.add_following("test2");
@@ -23,6 +23,7 @@ TEST_F(StoreAdapterTest, StoreUserInfoShouldStore) {
   EXPECT_EQ(test_info.chirp_id_s(0), fetched_info.chirp_id_s(0));
 }
 
+// `StoreChirp` should store the Chirp into store server
 TEST_F(StoreAdapterTest, StoreChirpShouldStore) {
   Chirp chirp;
   chirp.set_username("test");

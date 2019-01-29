@@ -30,10 +30,12 @@ using grpc::StatusCode;
 
 const std::string SERVICE_SERVER_ADDRESS("0.0.0.0:50002");
 
+// Implementation of ServiceLayerService
 class ServiceLayerServiceImpl final : public ServiceLayer::Service {
  public:
   ServiceLayerServiceImpl() {
     store_adapter_ = std::unique_ptr<StoreAdapter>(new StoreAdapter);
+    store_adapter_->Init();
   }
   // Registers the given non-blank username
   Status registeruser(ServerContext* context, const RegisterRequest* request,
