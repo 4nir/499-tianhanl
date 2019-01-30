@@ -52,6 +52,7 @@ store_test
 store_adapter
 store_adapter_test
 service_layer_server_sync
+service_layer_client_sync
 Testing/
 
 third_party/*
