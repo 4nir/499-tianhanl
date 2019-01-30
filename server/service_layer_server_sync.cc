@@ -21,6 +21,7 @@ using chirp::RegisterReply;
 using chirp::RegisterRequest;
 using chirp::ServiceLayer;
 using chirp::Timestamp;
+using chirp::UserInfo;
 using grpc::Server;
 using grpc::ServerBuilder;
 using grpc::ServerContext;
