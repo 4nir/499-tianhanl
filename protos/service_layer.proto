@@ -21,6 +21,7 @@ message UserInfo {
   string username = 1;
   repeated string following = 2;  // The list of users current user is following
   repeated string chirp_id_s = 3; // The IDs of chirps current user post.
+  Timestamp timestamp = 4;        // Last modified time
 }
 
 message RegisterRequest { string username = 1; }
