@@ -10,10 +10,12 @@ class ServiceLayerClientTest : public ::testing::Test {
   ServiceLayerClient service_layer_client_;
 };
 
+// Registeruser should succeed
 TEST_F(ServiceLayerClientTest, RegisteruserShouldWork) {
   EXPECT_TRUE(service_layer_client_.RegisterUser("test"));
 }
 
+// Follow a existing user should succeed
 TEST_F(ServiceLayerClientTest, FollowShouldWork) {
   ASSERT_TRUE(service_layer_client_.RegisterUser("test2"));
   ASSERT_TRUE(service_layer_client_.RegisterUser("test1"));
