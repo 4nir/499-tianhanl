@@ -17,6 +17,7 @@ message Chirp {
   Timestamp timestamp = 5; // The time this chirp was posted.
 }
 
+// Stores inforamtion about a user. Helps finding chirp updates.
 message UserInfo {
   string username = 1;
   repeated string following = 2;  // The list of users current user is following
