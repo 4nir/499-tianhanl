@@ -43,7 +43,7 @@ class ServiceLayerServiceImpl final : public ServiceLayer::Service {
 
   // Registers the given non-blank username
   Status registeruser(ServerContext* context, const RegisterRequest* request,
-                      const RegisterReply* reply) {
+                      RegisterReply* reply) override {
     UserInfo new_user_info;
     new_user_info.set_username(request->username());
     // Ownership of timestamp pointer is transferred to new_user_info
@@ -63,7 +63,7 @@ class ServiceLayerServiceImpl final : public ServiceLayer::Service {
 
   // Starts following a given user
   Status follow(ServerContext* context, const FollowRequest* request,
-                FollowReply* response) {
+                FollowReply* response) override {
     UserInfo current_user_info =
         store_adapter_->GetUserInfo(request->username());
     current_user_info.add_following(request->to_follow());
@@ -105,13 +105,14 @@ void RunServer() {
   ServiceLayerServiceImpl service;
   ServerBuilder builder;
   // Listen on the given address without any authentication mechanism.
-  builder.AddListeningPort(STORE_SERVER_ADDRESS,
+  builder.AddListeningPort(SERVICE_SERVER_ADDRESS,
                            grpc::InsecureServerCredentials());
   // Register "service" as the instance through which we'll communicate with
   // clients. In this case it corresponds to an *synchronous* service.
   builder.RegisterService(&service);
   // Finally assemble the server.
   std::unique_ptr<Server> server(builder.BuildAndStart());
+  std::cout << "Server listening on " << SERVICE_SERVER_ADDRESS << std::endl;
   // Wait for the server to shutdown. Note that some other thread must be
   // responsible for shutting down the server for this call to ever return.
   server->Wait();
