@@ -1,3 +1,4 @@
+
 syntax = "proto3";
 
 package chirp;
@@ -14,6 +15,13 @@ message Chirp {
   bytes id = 3;            // The ID of this chirp.
   bytes parent_id = 4;     // The ID, if any, of the chirp this is in reply to.
   Timestamp timestamp = 5; // The time this chirp was posted.
+}
+
+// Stores inforamtion about a user. Helps finding chirp updates.
+message UserInfo {
+  string username = 1;
+  repeated string following = 2;  // The list of users current user is following
+  repeated string chirp_id_s = 3; // The IDs of chirps current user post.
 }
 
 message RegisterRequest { string username = 1; }
@@ -54,7 +62,7 @@ message MonitorRequest { string username = 1; }
 message MonitorReply { Chirp chirp = 1; }
 
 service ServiceLayer {
-  rpc register(RegisterRequest) returns (RegisterReply) {}
+  rpc registeruser(RegisterRequest) returns (RegisterReply) {}
   rpc chirp(ChirpRequest) returns (ChirpReply) {}
   rpc follow(FollowRequest) returns (FollowReply) {}
   rpc read(ReadRequest) returns (ReadReply) {}
