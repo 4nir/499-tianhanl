@@ -1,3 +1,4 @@
+#include <chrono>
 #include <iostream>
 #include <memory>
 #include <string>
@@ -21,12 +22,14 @@ using chirp::RegisterReply;
 using chirp::RegisterRequest;
 using chirp::ServiceLayer;
 using chirp::Timestamp;
+using chirp::UserInfo;
 using grpc::Server;
 using grpc::ServerBuilder;
 using grpc::ServerContext;
 using grpc::ServerWriter;
 using grpc::Status;
 using grpc::StatusCode;
+using namespace std::chrono;
 
 const std::string SERVICE_SERVER_ADDRESS("0.0.0.0:50002");
 
@@ -37,15 +40,44 @@ class ServiceLayerServiceImpl final : public ServiceLayer::Service {
     store_adapter_ = std::unique_ptr<StoreAdapter>(new StoreAdapter);
     store_adapter_->Init();
   }
+
   // Registers the given non-blank username
   Status registeruser(ServerContext* context, const RegisterRequest* request,
-                      const RegisterReply* reply) {}
+                      RegisterReply* reply) override {
+    UserInfo new_user_info;
+    new_user_info.set_username(request->username());
+    // Ownership of timestamp pointer is transferred to new_user_info
+    new_user_info.set_allocated_timestamp(MakeCurrentTimestamp());
+    bool ok = store_adapter_->StoreUserInfo(new_user_info);
+    if (ok) {
+      return Status::OK;
+    } else {
+      return Status(StatusCode::INVALID_ARGUMENT,
+                    "Cannot register with given username");
+    }
+  }
+
   // Posts a new chirp (optionally as a reply)
   Status chirp(ServerContext* context, const ChirpRequest* request,
                const ChirpReply* reply) {}
+
   // Starts following a given user
   Status follow(ServerContext* context, const FollowRequest* request,
-                FollowReply* response) {}
+                FollowReply* response) override {
+    UserInfo current_user_info =
+        store_adapter_->GetUserInfo(request->username());
+    current_user_info.add_following(request->to_follow());
+    // update last modified time
+    current_user_info.set_allocated_timestamp(MakeCurrentTimestamp());
+    bool ok = store_adapter_->StoreUserInfo(current_user_info);
+    if (ok) {
+      return Status::OK;
+    } else {
+      return Status(StatusCode::INVALID_ARGUMENT,
+                    "Cannot follow with given input");
+    }
+  }
+
   // Reads a chirp thread from the given id
   Status read(ServerContext* context, const ReadRequest* request,
               ReadReply* response) {}
@@ -54,6 +86,17 @@ class ServiceLayerServiceImpl final : public ServiceLayer::Service {
                  ServerWriter<MonitorReply>* writer) {}
 
  private:
+  // Creates a Timestamp object populated with current UNIX timestamp.
+  // The caller of this function should handle management of returned pointer
+  // to timestamp instance.
+  Timestamp* MakeCurrentTimestamp() {
+    Timestamp* timestamp = new Timestamp;
+    auto current_time = system_clock::now().time_since_epoch();
+    timestamp->set_seconds((duration_cast<seconds>(current_time)).count());
+    timestamp->set_useconds(
+        (duration_cast<microseconds>(current_time)).count());
+    return timestamp;
+  }
   //  Interface to communicate with store server
   std::unique_ptr<StoreAdapter> store_adapter_;
 };
@@ -62,13 +105,14 @@ void RunServer() {
   ServiceLayerServiceImpl service;
   ServerBuilder builder;
   // Listen on the given address without any authentication mechanism.
-  builder.AddListeningPort(STORE_SERVER_ADDRESS,
+  builder.AddListeningPort(SERVICE_SERVER_ADDRESS,
                            grpc::InsecureServerCredentials());
   // Register "service" as the instance through which we'll communicate with
   // clients. In this case it corresponds to an *synchronous* service.
   builder.RegisterService(&service);
   // Finally assemble the server.
   std::unique_ptr<Server> server(builder.BuildAndStart());
+  std::cout << "Server listening on " << SERVICE_SERVER_ADDRESS << std::endl;
   // Wait for the server to shutdown. Note that some other thread must be
   // responsible for shutting down the server for this call to ever return.
   server->Wait();
