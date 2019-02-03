@@ -59,7 +59,37 @@ class ServiceLayerServiceImpl final : public ServiceLayer::Service {
 
   // Posts a new chirp (optionally as a reply)
   Status chirp(ServerContext* context, const ChirpRequest* request,
-               const ChirpReply* reply) {}
+               ChirpReply* reply) {
+    // Prepares chirp
+    Chirp chirp;
+    Timestamp* current_timestamp = MakeCurrentTimestamp();
+    chirp.set_username(request->username());
+    chirp.set_text(request->text());
+    chirp.set_parent_id(request->parent_id());
+    chirp.set_id(request->username() +
+                 std::to_string(current_timestamp->seconds()));
+    chirp.set_allocated_timestamp(current_timestamp);
+
+    bool chirp_ok = store_adapter_->StoreChirp(chirp);
+
+    // When chirp is stored, updates corresponding UserInfo for monitoring
+    if (chirp_ok) {
+      UserInfo curr_user_info =
+          store_adapter_->GetUserInfo(request->username());
+      curr_user_info.add_chirp_id_s(chirp.id());
+      curr_user_info.set_allocated_timestamp(MakeCurrentTimestamp());
+      bool user_ok = store_adapter_->StoreUserInfo(curr_user_info);
+      if (user_ok) {
+        return Status::OK;
+      } else {
+        return Status(StatusCode::INVALID_ARGUMENT,
+                      "Cannot associate chirp with current user");
+      }
+    } else {
+      return Status(StatusCode::INVALID_ARGUMENT,
+                    "Cannot store chirp with given input");
+    }
+  }
 
   // Starts following a given user
   Status follow(ServerContext* context, const FollowRequest* request,

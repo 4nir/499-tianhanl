@@ -24,3 +24,16 @@ bool ServiceLayerClient::Follow(const std::string& username,
   Status status = stub_->follow(&context, request, &reply);
   return status.ok();
 }
+
+bool ServiceLayerClient::Chirp(const std::string& username,
+                               const std::string& text,
+                               const std::string& parent_id) {
+  ChirpRequest request;
+  request.set_username(username);
+  request.set_text(text);
+  request.set_parent_id(parent_id);
+  ChirpReply reply;
+  ClientContext context;
+  Status status = stub_->chirp(&context, request, &reply);
+  return status.ok();
+}

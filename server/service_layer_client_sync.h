@@ -13,6 +13,8 @@
 #include <grpcpp/create_channel.h>
 #include <grpcpp/security/credentials.h>
 
+using chirp::ChirpReply;
+using chirp::ChirpRequest;
 using chirp::FollowReply;
 using chirp::FollowRequest;
 using chirp::RegisterReply;
@@ -38,6 +40,10 @@ class ServiceLayerClient {
 
   // Follows user `to_follow` for user `username`
   bool Follow(const std::string& username, const std::string& to_follow);
+
+  // Creates a `Chirp`, id and timestamp will be supplied by service layer.
+  bool Chirp(const std::string& username, const std::string& text,
+             const std::string& parent_id = "");
 
  private:
   // Interface for RPC calls
