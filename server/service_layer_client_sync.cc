@@ -25,9 +25,9 @@ bool ServiceLayerClient::Follow(const std::string& username,
   return status.ok();
 }
 
-bool ServiceLayerClient::Chirp(const std::string& username,
-                               const std::string& text,
-                               const std::string& parent_id) {
+std::string ServiceLayerClient::SendChirp(const std::string& username,
+                                          const std::string& text,
+                                          const std::string& parent_id) {
   ChirpRequest request;
   request.set_username(username);
   request.set_text(text);
@@ -35,5 +35,24 @@ bool ServiceLayerClient::Chirp(const std::string& username,
   ChirpReply reply;
   ClientContext context;
   Status status = stub_->chirp(&context, request, &reply);
-  return status.ok();
+  if (status.ok()) {
+    return reply.chirp().id();
+  } else {
+    return "";
+  }
+}
+
+std::vector<Chirp> ServiceLayerClient::Read(const std::string& chirp_id) {
+  ReadRequest request;
+  request.set_chirp_id(chirp_id);
+  ReadReply reply;
+  ClientContext context;
+  Status status = stub_->read(&context, request, &reply);
+  std::vector<Chirp> chirps;
+  if (status.ok()) {
+    for (Chirp chirp : reply.chirps()) {
+      chirps.push_back(chirp);
+    }
+  }
+  return chirps;
 }

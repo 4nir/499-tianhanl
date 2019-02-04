@@ -4,6 +4,7 @@
 #include <iostream>
 #include <memory>
 #include <string>
+#include <vector>
 
 #include "./dist/service_layer.grpc.pb.h"
 
@@ -13,10 +14,13 @@
 #include <grpcpp/create_channel.h>
 #include <grpcpp/security/credentials.h>
 
+using chirp::Chirp;
 using chirp::ChirpReply;
 using chirp::ChirpRequest;
 using chirp::FollowReply;
 using chirp::FollowRequest;
+using chirp::ReadReply;
+using chirp::ReadRequest;
 using chirp::RegisterReply;
 using chirp::RegisterRequest;
 using chirp::ServiceLayer;
@@ -42,8 +46,17 @@ class ServiceLayerClient {
   bool Follow(const std::string& username, const std::string& to_follow);
 
   // Creates a `Chirp`, id and timestamp will be supplied by service layer.
-  bool Chirp(const std::string& username, const std::string& text,
-             const std::string& parent_id = "");
+  // Returns the id of the stored chirp.
+  // If id is "", the request failed.
+  std::string SendChirp(const std::string& username, const std::string& text,
+                        const std::string& parent_id = "");
+
+  // Reads a chirp thread from the given id.
+  // Thread order will from request id to its ancestor:
+  // Chirp(curr_chirp_id) -> Chirp(parent_chirp_id)
+  // Returns the vector of chirp thread.
+  // If vector length is 0, the request failed.
+  std::vector<Chirp> Read(const std::string& chirp_id);
 
  private:
   // Interface for RPC calls

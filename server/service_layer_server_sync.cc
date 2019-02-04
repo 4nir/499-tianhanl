@@ -2,6 +2,7 @@
 #include <iostream>
 #include <memory>
 #include <string>
+#include <vector>
 
 #include "./dist/service_layer.grpc.pb.h"
 #include "store_adapter.h"
@@ -78,6 +79,7 @@ class ServiceLayerServiceImpl final : public ServiceLayer::Service {
           store_adapter_->GetUserInfo(request->username());
       curr_user_info.add_chirp_id_s(chirp.id());
       curr_user_info.set_allocated_timestamp(MakeCurrentTimestamp());
+      CloneChirp(chirp, reply->mutable_chirp());
       bool user_ok = store_adapter_->StoreUserInfo(curr_user_info);
       if (user_ok) {
         return Status::OK;
@@ -109,8 +111,22 @@ class ServiceLayerServiceImpl final : public ServiceLayer::Service {
   }
 
   // Reads a chirp thread from the given id
+  // Thread order will from request id to its ancestor:
+  // Chirp(curr_chirp_id) -> Chirp(parent_chirp_id)
   Status read(ServerContext* context, const ReadRequest* request,
-              ReadReply* response) {}
+              ReadReply* response) {
+    std::vector<Chirp> chirp_thread =
+        store_adapter_->GetChirpThread(request->chirp_id());
+    if (chirp_thread.size() < 1) {
+      return Status(StatusCode::INVALID_ARGUMENT,
+                    "Cannot find corresponding chirp");
+    }
+    for (Chirp chirp : chirp_thread) {
+      Chirp* mutable_chirp = response->add_chirps();
+      CloneChirp(chirp, mutable_chirp);
+    }
+    return Status::OK;
+  }
   // Streams chirps from all followed users
   Status monitor(ServerContext* context, const MonitorRequest* request,
                  ServerWriter<MonitorReply>* writer) {}
@@ -126,6 +142,19 @@ class ServiceLayerServiceImpl final : public ServiceLayer::Service {
     timestamp->set_useconds(
         (duration_cast<microseconds>(current_time)).count());
     return timestamp;
+  }
+
+  // Clones the content of chirp into mutable_chirp_pointer
+  void CloneChirp(Chirp chirp, Chirp* mutable_chirp) {
+    Timestamp* timestamp = new Timestamp;
+    timestamp->set_seconds(chirp.timestamp().seconds());
+    timestamp->set_useconds(chirp.timestamp().useconds());
+    mutable_chirp->set_text(chirp.text());
+    mutable_chirp->set_id(chirp.id());
+    mutable_chirp->set_parent_id(chirp.parent_id());
+    mutable_chirp->set_username(chirp.username());
+    // Ownership of timestamp transfered to mutable_chirp
+    mutable_chirp->set_allocated_timestamp(timestamp);
   }
   //  Interface to communicate with store server
   std::unique_ptr<StoreAdapter> store_adapter_;

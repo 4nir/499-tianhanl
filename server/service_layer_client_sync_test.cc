@@ -25,7 +25,20 @@ TEST_F(ServiceLayerClientTest, FollowShouldWork) {
 // Create a chirp should succeed
 TEST_F(ServiceLayerClientTest, ChirpShouldWork) {
   ASSERT_TRUE(service_layer_client_.RegisterUser("test3"));
-  EXPECT_TRUE(service_layer_client_.Chirp("test3", "test content"));
+  const std::string& id =
+      service_layer_client_.SendChirp("test3", "test content");
+  EXPECT_NE("", id);
+}
+
+// Read a chirp should succeed
+TEST_F(ServiceLayerClientTest, ReadChirpShouldWork) {
+  ASSERT_TRUE(service_layer_client_.RegisterUser("test4"));
+  const std::string& id =
+      service_layer_client_.SendChirp("test4", "test content");
+  ASSERT_NE("", id);
+  std::vector<Chirp> chirps = service_layer_client_.Read(id);
+  ASSERT_NE(0, chirps.size());
+  EXPECT_EQ("test content", chirps[0].text());
 }
 
 int main(int argc, char** argv) {
