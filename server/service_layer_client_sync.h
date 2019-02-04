@@ -48,14 +48,17 @@ class ServiceLayerClient {
   // Creates a `Chirp`, id and timestamp will be supplied by service layer.
   // Returns the id of the stored chirp.
   // If id is "", the request failed.
+  // parent_id: If this chirp is an reply, parent_id is the id of the chrip it
+  // is replying to.
   std::string SendChirp(const std::string& username, const std::string& text,
                         const std::string& parent_id = "");
 
   // Reads a chirp thread from the given id.
-  // Thread order will from request id to its ancestor:
-  // Chirp(curr_chirp_id) -> Chirp(parent_chirp_id)
   // Returns the vector of chirp thread.
   // If vector length is 0, the request failed.
+  // Thread order will from curr_chirp_id to its replies
+  // Chirp(curr_chirp_id) -> Chirp(reply_id)
+  // EX: foo->bar->baz, Read(foo) returns [foo, bar, baz]
   std::vector<Chirp> Read(const std::string& chirp_id);
 
  private:

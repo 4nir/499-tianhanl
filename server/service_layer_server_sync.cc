@@ -110,9 +110,9 @@ class ServiceLayerServiceImpl final : public ServiceLayer::Service {
     }
   }
 
-  // Reads a chirp thread from the given id
-  // Thread order will from request id to its ancestor:
-  // Chirp(curr_chirp_id) -> Chirp(parent_chirp_id)
+  // Reads a chirp thread for the given id
+  // Thread order will from curr_chirp_id to its replies:
+  // Chirp(curr_chirp_id)->Chirp(reply_id)
   Status read(ServerContext* context, const ReadRequest* request,
               ReadReply* response) {
     std::vector<Chirp> chirp_thread =
