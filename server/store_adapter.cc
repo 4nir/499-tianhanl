@@ -22,6 +22,11 @@ UserInfo StoreAdapter::GetUserInfo(const std::string& username) {
 }
 
 bool StoreAdapter::StoreChirp(const Chirp& chirp) {
+  // If chirp is a reply, store it as reply to its parent
+  if (chirp.parent_id() != "") {
+    std::lock_guard<std::mutex> guard(map_mutex_);
+    reply_map_[chirp.parent_id()] = chirp.id();
+  }
   std::string serialized_string;
   chirp.SerializeToString(&serialized_string);
   return store_client_->Put(chirp.id(), serialized_string);
@@ -40,14 +45,23 @@ Chirp StoreAdapter::GetChirp(const std::string& chirp_id) {
   return chirp;
 }
 
-// TODO(tianhanl): Improve implementation to better utilize stream
 std::vector<Chirp> StoreAdapter::GetChirpThread(const std::string& chirp_id) {
-  Chirp curr_chirp = GetChirp(chirp_id);
-  std::vector<Chirp> chirps = {curr_chirp};
-  // Recursively gets parent chirp until reachs root chirp
-  while (curr_chirp.parent_id() != "") {
-    curr_chirp = GetChirp(chirp_id);
-    chirps.push_back(curr_chirp);
+  std::vector<Chirp> chirps;
+  std::vector<std::string> keys = {chirp_id};
+
+  // Find IDs of replies to `chirp_id`, and push the IDs to keys
+  {
+    std::lock_guard<std::mutex> guard(map_mutex_);
+    auto search_result = reply_map_.find(chirp_id);
+    while (search_result != reply_map_.end()) {
+      keys.push_back(search_result->second);
+      search_result = reply_map_.find(search_result->second);
+    }
   }
+  store_client_->Get(keys, [&chirps](std::string value) {
+    Chirp chirp;
+    chirp.ParseFromString(value);
+    chirps.push_back(chirp);
+  });
   return chirps;
 }

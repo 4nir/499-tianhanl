@@ -2,6 +2,7 @@
 #include <iostream>
 #include <memory>
 #include <string>
+#include <vector>
 
 #include "./dist/service_layer.grpc.pb.h"
 #include "store_adapter.h"
@@ -59,7 +60,38 @@ class ServiceLayerServiceImpl final : public ServiceLayer::Service {
 
   // Posts a new chirp (optionally as a reply)
   Status chirp(ServerContext* context, const ChirpRequest* request,
-               const ChirpReply* reply) {}
+               ChirpReply* reply) {
+    // Prepares chirp
+    Chirp chirp;
+    Timestamp* current_timestamp = MakeCurrentTimestamp();
+    chirp.set_username(request->username());
+    chirp.set_text(request->text());
+    chirp.set_parent_id(request->parent_id());
+    chirp.set_id(request->username() +
+                 std::to_string(current_timestamp->seconds()));
+    chirp.set_allocated_timestamp(current_timestamp);
+
+    bool chirp_ok = store_adapter_->StoreChirp(chirp);
+
+    // When chirp is stored, updates corresponding UserInfo for monitoring
+    if (chirp_ok) {
+      UserInfo curr_user_info =
+          store_adapter_->GetUserInfo(request->username());
+      curr_user_info.add_chirp_id_s(chirp.id());
+      curr_user_info.set_allocated_timestamp(MakeCurrentTimestamp());
+      CloneChirp(chirp, reply->mutable_chirp());
+      bool user_ok = store_adapter_->StoreUserInfo(curr_user_info);
+      if (user_ok) {
+        return Status::OK;
+      } else {
+        return Status(StatusCode::INVALID_ARGUMENT,
+                      "Cannot associate chirp with current user");
+      }
+    } else {
+      return Status(StatusCode::INVALID_ARGUMENT,
+                    "Cannot store chirp with given input");
+    }
+  }
 
   // Starts following a given user
   Status follow(ServerContext* context, const FollowRequest* request,
@@ -78,9 +110,23 @@ class ServiceLayerServiceImpl final : public ServiceLayer::Service {
     }
   }
 
-  // Reads a chirp thread from the given id
+  // Reads a chirp thread for the given id
+  // Thread order will from curr_chirp_id to its replies:
+  // Chirp(curr_chirp_id)->Chirp(reply_id)
   Status read(ServerContext* context, const ReadRequest* request,
-              ReadReply* response) {}
+              ReadReply* response) {
+    std::vector<Chirp> chirp_thread =
+        store_adapter_->GetChirpThread(request->chirp_id());
+    if (chirp_thread.size() < 1) {
+      return Status(StatusCode::INVALID_ARGUMENT,
+                    "Cannot find corresponding chirp");
+    }
+    for (Chirp chirp : chirp_thread) {
+      Chirp* mutable_chirp = response->add_chirps();
+      CloneChirp(chirp, mutable_chirp);
+    }
+    return Status::OK;
+  }
   // Streams chirps from all followed users
   Status monitor(ServerContext* context, const MonitorRequest* request,
                  ServerWriter<MonitorReply>* writer) {}
@@ -96,6 +142,19 @@ class ServiceLayerServiceImpl final : public ServiceLayer::Service {
     timestamp->set_useconds(
         (duration_cast<microseconds>(current_time)).count());
     return timestamp;
+  }
+
+  // Clones the content of chirp into mutable_chirp_pointer
+  void CloneChirp(Chirp chirp, Chirp* mutable_chirp) {
+    Timestamp* timestamp = new Timestamp;
+    timestamp->set_seconds(chirp.timestamp().seconds());
+    timestamp->set_useconds(chirp.timestamp().useconds());
+    mutable_chirp->set_text(chirp.text());
+    mutable_chirp->set_id(chirp.id());
+    mutable_chirp->set_parent_id(chirp.parent_id());
+    mutable_chirp->set_username(chirp.username());
+    // Ownership of timestamp transfered to mutable_chirp
+    mutable_chirp->set_allocated_timestamp(timestamp);
   }
   //  Interface to communicate with store server
   std::unique_ptr<StoreAdapter> store_adapter_;
