@@ -34,3 +34,4 @@ add_subdirectory(${THIRD_PARTY_DIR}/glog)
 # add subdirectories
 add_subdirectory(store)
 add_subdirectory(server)
+add_subdirectory(client)

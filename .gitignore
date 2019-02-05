@@ -58,3 +58,5 @@ Testing/
 
 third_party/*
 .vscode
+
+command_client
