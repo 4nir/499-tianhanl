@@ -33,23 +33,33 @@ void CommandClientCore::Run(const std::string& register_user,
 
   // Creates a chirp if has one.
   if (chirp != "") {
-    const std::string& id =
-        service_layer_client_.SendChirp(username, chirp, reply);
-    if (id == "") {
-      cout << "fail to chirp with inputted information" << endl;
-    } else {
-      cout << "chirp id is: " << id << endl;
-    }
+    SendChirp(username, chirp, reply);
   }
 
   // Read chirp thread if supplied a --read chirp_id
   if (read != "") {
-    std::vector<Chirp> chirps = service_layer_client_.Read(read);
-    for (Chirp chirp : chirps) {
-      cout << "Time: " << chirp.timestamp().seconds() << endl;
-      cout << "Username: " << chirp.username() << endl;
-      cout << "Text: " << chirp.text() << endl;
-      cout << endl;
-    }
+    ReadChirpThread(read);
+  }
+}
+
+void CommandClientCore::SendChirp(const std::string& username,
+                                  const std::string& text,
+                                  const std::string& parent_id) {
+  const std::string& id =
+      service_layer_client_.SendChirp(username, text, parent_id);
+  if (id == "") {
+    cout << "fail to chirp with inputted information" << endl;
+  } else {
+    cout << "chirp id is: " << id << endl;
+  }
+}
+
+void CommandClientCore::ReadChirpThread(const std::string& id) {
+  std::vector<Chirp> chirps = service_layer_client_.Read(id);
+  for (Chirp chirp : chirps) {
+    cout << "Time: " << chirp.timestamp().seconds() << endl;
+    cout << "Username: " << chirp.username() << endl;
+    cout << "Text: " << chirp.text() << endl;
+    cout << endl;
   }
 }
