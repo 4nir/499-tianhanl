@@ -7,14 +7,6 @@ target_link_libraries(command_client_core
   glog
 )
 
-add_executable(command_client_core_test command_client_core_test.cc)
-target_link_libraries(command_client_core_test
-  gtest
-  gtest_main
-  gmock
-  command_client_core
-)
-
 add_executable(command_client command_client.cc)
 target_link_libraries(command_client PUBLIC
   command_client_core

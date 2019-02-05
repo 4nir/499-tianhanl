@@ -55,6 +55,8 @@ service_layer_server_sync
 service_layer_client_sync
 service_layer_client_sync_test
 Testing/
+command_client_core_test
+*.log
 
 third_party/*
 .vscode
