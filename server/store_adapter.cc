@@ -60,7 +60,7 @@ std::vector<std::string> StoreAdapter::GetReplyIds(const std::string& curr_id) {
   std::vector<std::string> ids;
 
   // Get ReplyRecord for curr_id
-  std::string key = "reply-" + curr_id;
+  const std::string& key = "reply-" + curr_id;
   std::vector<std::string> keys = {key};
   std::string serialized_string;
   store_client_->Get(keys, [&serialized_string](std::string value) {
@@ -82,7 +82,7 @@ std::vector<std::string> StoreAdapter::GetReplyIds(const std::string& curr_id) {
 bool StoreAdapter::StoreReply(const std::string& curr_id,
                               const std::string& parent_id) {
   // Use `reply-` as a prefix to indicate it is key for `ReplyRecord`
-  std::string key = "reply-" + parent_id;
+  const std::string& key = "reply-" + parent_id;
 
   // Get previous `ReplyRecord` for this key
   std::vector<std::string> keys = {key};
