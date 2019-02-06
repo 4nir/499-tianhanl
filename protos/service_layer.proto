@@ -25,6 +25,12 @@ message UserInfo {
   Timestamp timestamp = 4;        // Last modified time
 }
 
+// Stores the ids of replies to a chirp
+message ReplyRecord {
+  string id = 1;                 // The ID of the chirp
+  repeated string reply_ids = 2; // The IDs of replys to the chirp
+}
+
 message RegisterRequest { string username = 1; }
 
 message RegisterReply {

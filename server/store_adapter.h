@@ -11,6 +11,7 @@
 #include <vector>
 
 using chirp::Chirp;
+using chirp::ReplyRecord;
 using chirp::Timestamp;
 using chirp::UserInfo;
 
@@ -46,13 +47,21 @@ class StoreAdapter {
   Chirp GetChirp(const std::string& chirp_id);
 
  private:
+  // Gets the IDs of replies to `curr_id` chirp
+  std::vector<std::string> GetReplyIds(const std::string& curr_id);
+
+  // Stores `curr_id` chirp as a reply to `parent_id` chirp
+  bool StoreReply(const std::string& curr_id, const std::string& parent_id);
+
+  // Get all keys for the chirp thread starting from chirp_id, result is in
+  // pre-order sequence
+  // EX: A -> B
+  //       -> C
+  // returns [A, B, C]
+  std::vector<std::string> GetThreadKeys(const std::string& chirp_id);
+
   // client interface used to communicate with store server
   std::unique_ptr<KeyValueStoreClient> store_client_;
-  // map for storing direct reply id for a chirp_id
-  // TODO: Find a way to keep consistency across different servers
-  std::unordered_map<std::string, std::string> reply_map_;
-  // mutex used to protect reply_map_ from race condition
-  std::mutex map_mutex_;
 };
 
 #endif
