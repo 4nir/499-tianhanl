@@ -61,14 +61,25 @@ TEST_F(StoreAdapterTest, StoreChirpShouldStore) {
 
 // Using `GetChirpThread` should return the thread of chirps
 TEST_F(StoreAdapterTest, GetChirpThreadShouldSucceed) {
+  // Basic Linear Shpae 255->256
   Chirp parent_chirp = makeChirp("test", "parent", "255", "");
   ASSERT_TRUE(store_adapter_.StoreChirp(parent_chirp));
-  Chirp child_chirp = makeChirp("test", "child", "256", "255");
-  ASSERT_TRUE(store_adapter_.StoreChirp(child_chirp));
-  std::vector<Chirp> chirps = store_adapter_.GetChirpThread("255");
-  ASSERT_EQ(2, chirps.size());
-  EXPECT_EQ("255", chirps[0].id());
-  EXPECT_EQ("256", chirps[1].id());
+  Chirp child_chirp1 = makeChirp("test", "child", "256", "255");
+  ASSERT_TRUE(store_adapter_.StoreChirp(child_chirp1));
+  std::vector<Chirp> chirps1 = store_adapter_.GetChirpThread("255");
+  ASSERT_EQ(2, chirps1.size());
+  EXPECT_EQ("255", chirps1[0].id());
+  EXPECT_EQ("256", chirps1[1].id());
+
+  // Basic Tree 255 -> 256
+  //                -> 257
+  Chirp child_chirp2 = makeChirp("test", "child", "257", "255");
+  ASSERT_TRUE(store_adapter_.StoreChirp(child_chirp2));
+  std::vector<Chirp> chirps2 = store_adapter_.GetChirpThread("255");
+  ASSERT_EQ(3, chirps2.size());
+  EXPECT_EQ("255", chirps2[0].id());
+  EXPECT_EQ("256", chirps2[1].id());
+  EXPECT_EQ("257", chirps2[2].id());
 }
 
 int main(int argc, char** argv) {

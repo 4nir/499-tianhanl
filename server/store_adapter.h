@@ -54,7 +54,8 @@ class StoreAdapter {
   bool StoreReply(const std::string& curr_id, const std::string& parent_id);
 
   // Get all keys for the chirp thread starting from chirp_id, result is in
-  // pre-order sequence EX: A -> B
+  // pre-order sequence
+  // EX: A -> B
   //       -> C
   // returns [A, B, C]
   std::vector<std::string> GetThreadKeys(const std::string& chirp_id);

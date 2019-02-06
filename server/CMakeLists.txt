@@ -62,4 +62,5 @@ add_executable(service_layer_client_sync_test service_layer_client_sync_test.cc)
 target_link_libraries(service_layer_client_sync_test
     gtest
     gtest_main
-    service_layer_client_sync)
+    service_layer_client_sync
+)
