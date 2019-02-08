@@ -65,6 +65,7 @@ class ServiceLayerClient {
 
   // Get new chirps from users who current user is following.
   // When a new chirp is received handle_response will be called with the chirp.
+  // The order of reponse will from oldest chirp to latest chirp
   bool Monitor(const std::string& username,
                std::function<void(Chirp)> handle_response);
 
