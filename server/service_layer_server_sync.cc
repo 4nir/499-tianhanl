@@ -134,33 +134,31 @@ class ServiceLayerServiceImpl final : public ServiceLayer::Service {
   Status monitor(ServerContext* context, const MonitorRequest* request,
                  ServerWriter<MonitorReply>* writer) {
     UserInfo curr_user_info = store_adapter_->GetUserInfo(request->username());
-
     // Starts monitoring
     std::thread monitoring([writer, &curr_user_info, this]() {
       std::vector<Chirp> chirps;
-      // Used to avoid duplicate
-      int latest_access_seconds = 0;
+      // Mark latest_access_seconds, only post younger than it should be sent
+      auto mark_time = system_clock::now().time_since_epoch();
+      int latest_access_seconds = (duration_cast<seconds>(mark_time)).count();
       // Uses polling to check updates.
       while (true) {
-        // Makr current time
-        auto mark_time = system_clock::now().time_since_epoch();
-        int mark_seconds = (duration_cast<seconds>(mark_time)).count();
         std::vector<Chirp> chirps;
-        latest_access_seconds = std::max(latest_access_seconds, mark_seconds);
+        // Store curent access time
+        int mark_seconds = latest_access_seconds;
         // wait 10 seconds
-        std::this_thread::sleep_for(std::chrono::seconds(10));
+        std::this_thread::sleep_for(std::chrono::seconds(2));
         // If the users who current user is following has newer record,
         // store the new chirp to chiprs
         for (const std::string& username : curr_user_info.following()) {
           UserInfo user_info = store_adapter_->GetUserInfo(username);
           // If user record has been updated after mark_time
-          if (user_info.timestamp().seconds() >= mark_seconds) {
+          if (user_info.timestamp().seconds() > mark_seconds) {
             // Adds chirp posted after mark_time to chirps
             for (int i = user_info.chirp_id_s_size() - 1; i >= 0; i--) {
               Chirp chirp = store_adapter_->GetChirp(user_info.chirp_id_s(i));
               // If the chirp is posted after mark_seconds, it is a new
               // chirp
-              if (chirp.timestamp().seconds() >= mark_seconds) {
+              if (chirp.timestamp().seconds() > mark_seconds) {
                 latest_access_seconds = std::max(
                     latest_access_seconds, int(chirp.timestamp().seconds()));
                 chirps.push_back(chirp);
@@ -170,12 +168,15 @@ class ServiceLayerServiceImpl final : public ServiceLayer::Service {
             }
           }
         }
-
         // Now chirps have all chirps posted after mark time
         for (Chirp chirp : chirps) {
           MonitorReply reply;
           CloneChirp(chirp, reply.mutable_chirp());
-          writer->Write(reply);
+          bool ok = writer->Write(reply);
+          // If stream is closed, terminate thread
+          if (!ok) {
+            return;
+          }
         }
       }
     });

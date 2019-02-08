@@ -31,6 +31,9 @@ class CommandClientCore {
   // output message will be 1->2->3 (Preorder)
   void ReadChirpThread(const std::string& id);
 
+  // Print formatted chirp content to cout
+  void PrintChirp(Chirp chirp);
+
   // client instance used to communicate with server
   ServiceLayerClient service_layer_client_;
 };
