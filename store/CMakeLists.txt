@@ -36,14 +36,6 @@ add_test(
     COMMAND store_test
 )
 
-add_executable(key_value_store_server key_value_store_server.cc
-    ${store_proto_srcs}
-    ${store_grpc_srcs}
-    key_value_store_call_data.cc)
-target_link_libraries(key_value_store_server
-    ${_GRPC_GRPCPP_UNSECURE}
-    ${_PROTOBUF_LIBPROTOBUF}
-    store)
 add_executable(key_value_store_server_sync key_value_store_server_sync.cc
     ${store_proto_srcs}
     ${store_grpc_srcs})
@@ -51,15 +43,7 @@ target_link_libraries(key_value_store_server_sync
     ${_GRPC_GRPCPP_UNSECURE}
     ${_PROTOBUF_LIBPROTOBUF}
     store)
-
-add_executable(key_value_store_client key_value_store_client.cc
-    ${store_proto_srcs}
-    ${store_grpc_srcs}
-    key_value_store_call.cc)
-target_link_libraries(key_value_store_client
-    ${_GRPC_GRPCPP_UNSECURE}
-    ${_PROTOBUF_LIBPROTOBUF})
-
+    
 add_library(key_value_store_client_sync key_value_store_client_sync.cc
     ${store_proto_srcs}
     ${store_grpc_srcs})
