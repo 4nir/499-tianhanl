@@ -19,6 +19,8 @@ using chirp::ChirpReply;
 using chirp::ChirpRequest;
 using chirp::FollowReply;
 using chirp::FollowRequest;
+using chirp::MonitorReply;
+using chirp::MonitorRequest;
 using chirp::ReadReply;
 using chirp::ReadRequest;
 using chirp::RegisterReply;
@@ -26,7 +28,7 @@ using chirp::RegisterRequest;
 using chirp::ServiceLayer;
 using grpc::Channel;
 using grpc::ClientContext;
-using grpc::ClientReaderWriter;
+using grpc::ClientReader;
 using grpc::Status;
 
 const std::string SERVICE_SERVER_ADDRESS("0.0.0.0:50002");
@@ -60,6 +62,12 @@ class ServiceLayerClient {
   // Chirp(curr_chirp_id) -> Chirp(reply_id)
   // EX: foo->bar->baz, Read(foo) returns [foo, bar, baz]
   std::vector<Chirp> Read(const std::string& chirp_id);
+
+  // Get new chirps from users who current user is following.
+  // When a new chirp is received handle_response will be called with the chirp.
+  // The order of reponse will from oldest chirp to latest chirp
+  bool Monitor(const std::string& username,
+               std::function<void(Chirp)> handle_response);
 
  private:
   // Interface for RPC calls

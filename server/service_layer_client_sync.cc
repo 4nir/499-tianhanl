@@ -56,3 +56,19 @@ std::vector<Chirp> ServiceLayerClient::Read(const std::string& chirp_id) {
   }
   return chirps;
 }
+
+bool ServiceLayerClient::Monitor(const std::string& username,
+                                 std::function<void(Chirp)> handle_response) {
+  MonitorRequest request;
+  MonitorReply reply;
+  ClientContext context;
+  request.set_username(username);
+  std::unique_ptr<ClientReader<MonitorReply>> reader(
+      stub_->monitor(&context, request));
+  // Receiving new chirps
+  while (reader->Read(&reply)) {
+    handle_response(reply.chirp());
+  }
+  Status status = reader->Finish();
+  return status.ok();
+}

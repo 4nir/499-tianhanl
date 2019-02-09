@@ -26,6 +26,14 @@ void CommandClientCore::Run(const std::string& register_user,
     return;
   }
 
+  if (follow != "") {
+    bool ok = service_layer_client_.Follow(username, follow);
+    if (!ok) {
+      cout << "username: " << follow << " cannot be followed" << endl;
+      return;
+    }
+  }
+
   // use must reply with a chirp
   if (reply != "" && chirp == "") {
     cout << "--reply must be used with --chirp" << endl;
@@ -39,6 +47,11 @@ void CommandClientCore::Run(const std::string& register_user,
   // Read chirp thread if supplied a --read chirp_id
   if (read != "") {
     ReadChirpThread(read);
+  }
+
+  if (monitor) {
+    service_layer_client_.Monitor(username,
+                                  [this](Chirp chirp) { PrintChirp(chirp); });
   }
 }
 
@@ -57,9 +70,13 @@ void CommandClientCore::SendChirp(const std::string& username,
 void CommandClientCore::ReadChirpThread(const std::string& id) {
   std::vector<Chirp> chirps = service_layer_client_.Read(id);
   for (Chirp chirp : chirps) {
-    cout << "Time: " << chirp.timestamp().seconds() << endl;
-    cout << "Username: " << chirp.username() << endl;
-    cout << "Text: " << chirp.text() << endl;
-    cout << endl;
+    PrintChirp(chirp);
   }
+}
+
+void CommandClientCore::PrintChirp(Chirp chirp) {
+  cout << "Time: " << chirp.timestamp().seconds() << endl;
+  cout << "Username: " << chirp.username() << endl;
+  cout << "Text: " << chirp.text() << endl;
+  cout << endl;
 }
