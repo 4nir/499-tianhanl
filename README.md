@@ -17,7 +17,38 @@ cmake - as build tool
 
 ### Git submodule
 
+googletest
+gflags
+benchmark
+glog
+
 ## Install
+
+### Install global modules
+
+```bash
+#  gRPC
+# Pre-requisites
+[sudo] apt-get install build-essential autoconf libtool pkg-config
+# Install from source
+git clone -b $(curl -L https://grpc.io/release) https://github.com/grpc/grpc
+cd grpc
+git submodule update --init
+
+# Protobuf
+cd grpc/third_party/protobuf
+sudo make install   # 'make' should have been run by core grpc
+
+#cmake
+# install PPA
+sudo apt-get install software-properties-common
+sudo add-apt-repository ppa:george-edison55/cmake-3.x
+sudo apt-get update
+# if cmake is not installed
+sudo apt-get install cmake
+# else
+sudo apt-get upgrade
+```
 
 ```bash
 # install submodule dependency
@@ -26,4 +57,6 @@ git submodule update
 # in root folder
 cmake
 make
+# If you want to run unittest
+make test
 ```

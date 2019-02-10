@@ -41,6 +41,10 @@ target_link_libraries(store_adapter_test
     gtest
     gtest_main
     store_adapter)
+add_test(
+    NAME store_adapter_test
+    COMMAND store_adapter_test
+)
 
 add_library(service_layer_server_core service_layer_server_core.cc
     ${service_layer_proto_srcs}
@@ -59,7 +63,10 @@ target_link_libraries(service_layer_server_core_test
     gtest_main
     service_layer_server_core)
 
-
+add_test(
+    NAME service_layer_server_core_test
+    COMMAND service_layer_server_core_test
+)
 
 add_executable(service_layer_server_sync service_layer_server_sync.cc
 ${service_layer_proto_srcs}

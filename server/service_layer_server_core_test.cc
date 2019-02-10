@@ -80,7 +80,7 @@ TEST_F(ServiceLayerServerCoreTest, MonitorShouldWork) {
                                          output_chirp = chirp;
                                          return false;
                                        },
-                                       10);
+                                       1, 10);
   });
   Chirp parent_chirp;
   service_layer_server_core_.SendChirp(parent_chirp, "test5", "hohoho");

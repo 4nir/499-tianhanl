@@ -59,12 +59,13 @@ class ServiceLayerServerCore {
   username: the user to monitor
   handle_response: callback function that will be called when a new chirp is
   found. If handle_reponse returns false, the polling will be terminated.
+  interval: time in seconds between two polling calls
   time_limit: Home many senonds after polling starts should monitor end, -1
   means infinite time.
  */
   bool Monitor(const std::string& username,
                const std::function<bool(Chirp)>& handle_response,
-               int time_limit = -1);
+               int interval = 2, int time_limit = -1);
 
  private:
   // Creates a Timestamp object populated with current UNIX timestamp.
