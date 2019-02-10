@@ -22,7 +22,8 @@ class StoreAdapter {
  public:
   // Initialize store_client_, should be called before all Get*/Store* methods
   // were called.
-  // If `dev` is true, Init will use DevKeyValueStoreClient for store_client_.
+  // If `dev` is true, Init will use DevKeyValueStoreClient for store_client_,
+  // which does not reply a running store_server instance.
   // Else Init will use KeyValueStoreClient for store_client_.
   void Init(bool dev = false);
 

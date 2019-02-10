@@ -19,7 +19,7 @@ class DevKeyValueStoreClient : public KeyValueStoreClientInterface {
   bool Put(const std::string& key, const std::string& value) override;
 
   // Gets each item for key in keys. `hanle_response` will be called each time
-  // `Get` receives a new reponse from stream.
+  // `Get` extract new value from store
   bool Get(const std::vector<std::string>& keys,
            std::function<void(std::string)> handle_response) override;
 
