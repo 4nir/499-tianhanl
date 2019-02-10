@@ -24,13 +24,15 @@ add_custom_command(
 # Include generated *.pb.h files
 include_directories("${DIST_DIR}")
 
+
 add_library(store_adapter store_adapter.cc
     ${service_layer_proto_srcs}
     ${service_layer_grpc_srcs})
 target_link_libraries(store_adapter
     ${_GRPC_GRPCPP_UNSECURE}
     ${_PROTOBUF_LIBPROTOBUF}
-    key_value_store_client_sync)
+    key_value_store_client_sync
+    dev_key_value_store_client_sync)
 
 add_executable(store_adapter_test store_adapter_test.cc
     ${service_layer_proto_srcs}

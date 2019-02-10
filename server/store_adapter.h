@@ -1,6 +1,6 @@
 #ifndef STORE_ADAPTER
 #define STORE_ADAPTER
-
+#include "../store/dev_key_value_store_client_sync.h"
 #include "../store/key_value_store_client_sync.h"
 #include "./dist/service_layer.pb.h"
 
@@ -20,14 +20,12 @@ using chirp::UserInfo;
 // replace previous stored value.
 class StoreAdapter {
  public:
-  StoreAdapter() {
-    store_client_ =
-        std::unique_ptr<KeyValueStoreClient>(new KeyValueStoreClient);
-  }
-
   // Initialize store_client_, should be called before all Get*/Store* methods
   // were called.
-  void Init();
+  // If `dev` is true, Init will use DevKeyValueStoreClient for store_client_,
+  // which does not reply a running store_server instance.
+  // Else Init will use KeyValueStoreClient for store_client_.
+  void Init(bool dev = false);
 
   // Stores serialized `UserInfo`. Returns true if succeed.
   bool StoreUserInfo(const UserInfo& user_info);
@@ -61,7 +59,7 @@ class StoreAdapter {
   std::vector<std::string> GetThreadKeys(const std::string& chirp_id);
 
   // client interface used to communicate with store server
-  std::unique_ptr<KeyValueStoreClient> store_client_;
+  std::unique_ptr<KeyValueStoreClientInterface> store_client_;
 };
 
 #endif

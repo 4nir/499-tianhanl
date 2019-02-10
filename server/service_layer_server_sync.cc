@@ -185,7 +185,7 @@ class ServiceLayerServiceImpl final : public ServiceLayer::Service {
             }
           }
         }
-        // Now chirps have all chirps posted after mark time
+        // Now `chirps` has all chirps posted after time of mark
         if (chirps.size() > 0) {
           std::sort(chirps.begin(), chirps.end(), Older);
           for (Chirp chirp : chirps) {

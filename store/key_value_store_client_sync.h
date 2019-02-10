@@ -8,6 +8,7 @@
 #include <vector>
 
 #include "./dist/key_value_store.grpc.pb.h"
+#include "./key_value_store_client_interface.h"
 
 #include <grpc/grpc.h>
 #include <grpcpp/channel.h>
@@ -30,22 +31,22 @@ using grpc::Status;
 const std::string STORE_SERVER_ADDRESS("0.0.0.0:50000");
 
 // Client interface to communicate with key_value_store_server_sync.
-class KeyValueStoreClient {
+class KeyValueStoreClient : public KeyValueStoreClientInterface {
  public:
   // Initializes the client stub_. Should be called before `Put`, `Get` and
   // `DeleteKey` were called.
-  void Init();
+  void Init() override;
 
   // Puts key-value pair into store, return true if succeed
-  bool Put(const std::string& key, const std::string& value);
+  bool Put(const std::string& key, const std::string& value) override;
 
   // Gets each item for key in keys. `hanle_response` will be called each time
   // `Get` receives a new reponse from stream.
   bool Get(const std::vector<std::string>& keys,
-           std::function<void(std::string)> handle_response);
+           const std::function<void(std::string)>& handle_response) override;
 
   // Deletes the key-value pair in store for the key, return true if succeed
-  bool DeleteKey(const std::string& key);
+  bool DeleteKey(const std::string& key) override;
 
  private:
   // Makes a get request object with the key

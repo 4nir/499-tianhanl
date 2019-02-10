@@ -6,7 +6,8 @@
 
 class StoreAdapterTest : public ::testing::Test {
  protected:
-  void SetUp() override { store_adapter_.Init(); }
+  //  Turn on dev key
+  void SetUp() override { store_adapter_.Init(true); }
   StoreAdapter store_adapter_;
 };
 

@@ -26,7 +26,7 @@ bool KeyValueStoreClient::Put(const std::string& key,
 
 bool KeyValueStoreClient::Get(
     const std::vector<std::string>& keys,
-    std::function<void(std::string)> handle_response) {
+    const std::function<void(std::string)>& handle_response) {
   ClientContext context;
   // Stream used to communicate with server
   std::shared_ptr<ClientReaderWriter<GetRequest, GetReply>> stream(

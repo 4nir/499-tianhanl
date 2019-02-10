@@ -24,6 +24,8 @@ add_custom_command(
 # Include generated *.pb.h files
 include_directories("${DIST_DIR}")
 
+set(client_interface_hdrs "key_value_store_client_interface.h")
+
 add_library(store STATIC store.cc store.h)
 add_executable(store_test store_test.cc)
 target_link_libraries(store_test PUBLIC
@@ -36,14 +38,6 @@ add_test(
     COMMAND store_test
 )
 
-add_executable(key_value_store_server key_value_store_server.cc
-    ${store_proto_srcs}
-    ${store_grpc_srcs}
-    key_value_store_call_data.cc)
-target_link_libraries(key_value_store_server
-    ${_GRPC_GRPCPP_UNSECURE}
-    ${_PROTOBUF_LIBPROTOBUF}
-    store)
 add_executable(key_value_store_server_sync key_value_store_server_sync.cc
     ${store_proto_srcs}
     ${store_grpc_srcs})
@@ -52,15 +46,8 @@ target_link_libraries(key_value_store_server_sync
     ${_PROTOBUF_LIBPROTOBUF}
     store)
 
-add_executable(key_value_store_client key_value_store_client.cc
-    ${store_proto_srcs}
-    ${store_grpc_srcs}
-    key_value_store_call.cc)
-target_link_libraries(key_value_store_client
-    ${_GRPC_GRPCPP_UNSECURE}
-    ${_PROTOBUF_LIBPROTOBUF})
-
 add_library(key_value_store_client_sync key_value_store_client_sync.cc
+    ${key_value_store_client_interface_hdrs}
     ${store_proto_srcs}
     ${store_grpc_srcs})
 target_link_libraries(key_value_store_client_sync
@@ -73,4 +60,9 @@ target_link_libraries(key_value_store_client_sync_test PUBLIC
     gtest_main
     key_value_store_client_sync
 )
+
+add_library(dev_key_value_store_client_sync dev_key_value_store_client_sync.cc
+    ${key_value_store_client_interface_hdrs})
+target_link_libraries(dev_key_value_store_client_sync
+    store)
 
