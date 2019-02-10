@@ -51,6 +51,15 @@ target_link_libraries(
     ${_GRPC_GRPCPP_UNSECURE}
     ${_PROTOBUF_LIBPROTOBUF})
 
+add_executable(service_layer_server_core_test service_layer_server_core_test.cc
+    ${service_layer_proto_srcs}
+    ${service_layer_grpc_srcs})
+target_link_libraries(service_layer_server_core_test
+    gtest
+    gtest_main
+    service_layer_server_core)
+
+
 
 add_executable(service_layer_server_sync service_layer_server_sync.cc
 ${service_layer_proto_srcs}
