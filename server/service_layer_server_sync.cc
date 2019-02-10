@@ -186,14 +186,16 @@ class ServiceLayerServiceImpl final : public ServiceLayer::Service {
           }
         }
         // Now `chirps` has all chirps posted after time of mark
-        std::sort(chirps.begin(), chirps.end(), Older);
-        for (Chirp chirp : chirps) {
-          MonitorReply reply;
-          CloneChirp(chirp, reply.mutable_chirp());
-          bool ok = writer->Write(reply);
-          // If stream is closed, terminate thread
-          if (!ok) {
-            return;
+        if (chirps.size() > 0) {
+          std::sort(chirps.begin(), chirps.end(), Older);
+          for (Chirp chirp : chirps) {
+            MonitorReply reply;
+            CloneChirp(chirp, reply.mutable_chirp());
+            bool ok = writer->Write(reply);
+            // If stream is closed, terminate thread
+            if (!ok) {
+              return;
+            }
           }
         }
       }
