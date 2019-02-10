@@ -42,6 +42,15 @@ target_link_libraries(store_adapter_test
     gtest_main
     store_adapter)
 
+add_library(service_layer_server_core service_layer_server_core.cc
+    ${service_layer_proto_srcs}
+    ${service_layer_grpc_srcs})
+target_link_libraries(
+    service_layer_server_core
+    store_adapter
+    ${_GRPC_GRPCPP_UNSECURE}
+    ${_PROTOBUF_LIBPROTOBUF})
+
 
 add_executable(service_layer_server_sync service_layer_server_sync.cc
 ${service_layer_proto_srcs}
@@ -50,7 +59,7 @@ ${service_layer_grpc_srcs})
 target_link_libraries(service_layer_server_sync
 ${_GRPC_GRPCPP_UNSECURE}
 ${_PROTOBUF_LIBPROTOBUF}
-store_adapter)
+service_layer_server_core)
 
 add_library(service_layer_client_sync service_layer_client_sync.cc
 ${service_layer_proto_srcs}
