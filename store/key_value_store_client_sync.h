@@ -43,7 +43,7 @@ class KeyValueStoreClient : public KeyValueStoreClientInterface {
   // Gets each item for key in keys. `hanle_response` will be called each time
   // `Get` receives a new reponse from stream.
   bool Get(const std::vector<std::string>& keys,
-           std::function<void(std::string)> handle_response) override;
+           const std::function<void(std::string)>& handle_response) override;
 
   // Deletes the key-value pair in store for the key, return true if succeed
   bool DeleteKey(const std::string& key) override;

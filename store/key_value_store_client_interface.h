@@ -18,7 +18,7 @@ class KeyValueStoreClientInterface {
   // Gets each item for key in keys. `hanle_response` will be called each time
   // `Get` receives a new reponse from stream.
   virtual bool Get(const std::vector<std::string>& keys,
-                   std::function<void(std::string)> handle_response) = 0;
+                   const std::function<void(std::string)>& handle_response) = 0;
 
   // Deletes the key-value pair in store for the key, return true if succeed
   virtual bool DeleteKey(const std::string& key) = 0;
