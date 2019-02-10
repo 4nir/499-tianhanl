@@ -1,7 +1,16 @@
 #include "store_adapter.h"
 #include <iterator>
 
-void StoreAdapter::Init() { store_client_->Init(); }
+void StoreAdapter::Init(bool dev) {
+  if (dev) {
+    store_client_ =
+        std::unique_ptr<DevKeyValueStoreClient>(new DevKeyValueStoreClient);
+  } else {
+    store_client_ =
+        std::unique_ptr<KeyValueStoreClient>(new KeyValueStoreClient);
+  }
+  store_client_->Init();
+}
 
 bool StoreAdapter::StoreUserInfo(const UserInfo& user_info) {
   std::string serialized_string;

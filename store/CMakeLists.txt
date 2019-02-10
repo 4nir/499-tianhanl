@@ -24,6 +24,8 @@ add_custom_command(
 # Include generated *.pb.h files
 include_directories("${DIST_DIR}")
 
+set(client_interface_hdrs "key_value_store_client_interface.h")
+
 add_library(store STATIC store.cc store.h)
 add_executable(store_test store_test.cc)
 target_link_libraries(store_test PUBLIC
@@ -43,8 +45,9 @@ target_link_libraries(key_value_store_server_sync
     ${_GRPC_GRPCPP_UNSECURE}
     ${_PROTOBUF_LIBPROTOBUF}
     store)
-    
+
 add_library(key_value_store_client_sync key_value_store_client_sync.cc
+    ${key_value_store_client_interface_hdrs}
     ${store_proto_srcs}
     ${store_grpc_srcs})
 target_link_libraries(key_value_store_client_sync
@@ -57,4 +60,9 @@ target_link_libraries(key_value_store_client_sync_test PUBLIC
     gtest_main
     key_value_store_client_sync
 )
+
+add_library(dev_key_value_store_client_sync dev_key_value_store_client_sync.cc
+    ${key_value_store_client_interface_hdrs})
+target_link_libraries(dev_key_value_store_client_sync
+    store)
 

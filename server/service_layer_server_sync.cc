@@ -197,48 +197,46 @@ class ServiceLayerServiceImpl final : public ServiceLayer::Service {
           }
         }
       }
-      }
-  });
-  // Wait for monitoring to end
-  monitoring.join();
-  return Status::OK;
-}
+    });
+    // Wait for monitoring to end
+    monitoring.join();
+    return Status::OK;
+  }
 
-private :
-    // Creates a Timestamp object populated with current UNIX timestamp.
-    // The caller of this function should handle management of returned pointer
-    // to timestamp instance.
-    Timestamp*
-    MakeCurrentTimestamp() {
-  Timestamp* timestamp = new Timestamp;
-  auto current_time = system_clock::now().time_since_epoch();
-  timestamp->set_seconds((duration_cast<seconds>(current_time)).count());
-  timestamp->set_useconds((duration_cast<microseconds>(current_time)).count());
-  return timestamp;
-}
+ private:
+  // Creates a Timestamp object populated with current UNIX timestamp.
+  // The caller of this function should handle management of returned pointer
+  // to timestamp instance.
+  Timestamp* MakeCurrentTimestamp() {
+    Timestamp* timestamp = new Timestamp;
+    auto current_time = system_clock::now().time_since_epoch();
+    timestamp->set_seconds((duration_cast<seconds>(current_time)).count());
+    timestamp->set_useconds(
+        (duration_cast<microseconds>(current_time)).count());
+    return timestamp;
+  }
 
-// Clones the content of chirp into mutable_chirp_pointer
-void CloneChirp(Chirp chirp, Chirp* mutable_chirp) {
-  Timestamp* timestamp = new Timestamp;
-  timestamp->set_seconds(chirp.timestamp().seconds());
-  timestamp->set_useconds(chirp.timestamp().useconds());
-  mutable_chirp->set_text(chirp.text());
-  mutable_chirp->set_id(chirp.id());
-  mutable_chirp->set_parent_id(chirp.parent_id());
-  mutable_chirp->set_username(chirp.username());
-  // Ownership of timestamp transfered to mutable_chirp
-  mutable_chirp->set_allocated_timestamp(timestamp);
-}
+  // Clones the content of chirp into mutable_chirp_pointer
+  void CloneChirp(Chirp chirp, Chirp* mutable_chirp) {
+    Timestamp* timestamp = new Timestamp;
+    timestamp->set_seconds(chirp.timestamp().seconds());
+    timestamp->set_useconds(chirp.timestamp().useconds());
+    mutable_chirp->set_text(chirp.text());
+    mutable_chirp->set_id(chirp.id());
+    mutable_chirp->set_parent_id(chirp.parent_id());
+    mutable_chirp->set_username(chirp.username());
+    // Ownership of timestamp transfered to mutable_chirp
+    mutable_chirp->set_allocated_timestamp(timestamp);
+  }
 
-// Determine is lhs chirp older than rhs chirp
-static bool Older(Chirp lhs, Chirp rhs) {
-  return lhs.timestamp().seconds() < rhs.timestamp().seconds();
-}
+  // Determine is lhs chirp older than rhs chirp
+  static bool Older(Chirp lhs, Chirp rhs) {
+    return lhs.timestamp().seconds() < rhs.timestamp().seconds();
+  }
 
-//  Interface to communicate with store server
-std::unique_ptr<StoreAdapter> store_adapter_;
-}
-;
+  //  Interface to communicate with store server
+  std::unique_ptr<StoreAdapter> store_adapter_;
+};
 
 void RunServer() {
   ServiceLayerServiceImpl service;
