@@ -57,6 +57,17 @@ git submodule update
 # in root folder
 cmake
 make
-# If you want to run unittest
+```
+
+## Testing
+
+Networked components have been separated into interfaces and implementations, and components should use dev implementations when unittesting.
+
+Unittesting have been register with `ctest`, and you can run all of them via:
+
+```bash
+# After make
 make test
 ```
+
+`*_client_sync_test.cc` is mean to be integration test which requires a running server inatnace
