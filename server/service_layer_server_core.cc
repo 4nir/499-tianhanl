@@ -40,11 +40,22 @@ ServiceLayerServerCore::ChirpStatus ServiceLayerServerCore::SendChirp(
 
 bool ServiceLayerServerCore::Follow(const std::string& username,
                                     const std::string& to_follow) {
+  // `username` should not be the same as `to_follow`
+  if (username == to_follow) {
+    return false;
+  }
   UserInfo current_user_info = store_adapter_.GetUserInfo(username);
-  current_user_info.add_following(to_follow);
-  // update last modified time
-  current_user_info.set_allocated_timestamp(MakeCurrentTimestamp());
-  return store_adapter_.StoreUserInfo(current_user_info);
+  UserInfo to_follow_user_info = store_adapter_.GetUserInfo(to_follow);
+  // Can only follow registered `to_follow` for registered `username`
+  if (current_user_info.username() != "" &&
+      to_follow_user_info.username() != "") {
+    current_user_info.add_following(to_follow);
+    // update last modified time
+    current_user_info.set_allocated_timestamp(MakeCurrentTimestamp());
+    return store_adapter_.StoreUserInfo(current_user_info);
+  } else {
+    return false;
+  }
 }
 
 std::vector<Chirp> ServiceLayerServerCore::Read(const std::string id) {

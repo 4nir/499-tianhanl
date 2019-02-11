@@ -25,8 +25,28 @@ TEST_F(ServiceLayerServerCoreTest, RegisterUserShouldWork) {
 //  `Follow` should work
 TEST_F(ServiceLayerServerCoreTest, FollowShouldWork) {
   // Should be able to follow a existing user
+  EXPECT_TRUE(service_layer_server_core_.RegisterUser("test1"));
   EXPECT_TRUE(service_layer_server_core_.RegisterUser("test2"));
-  EXPECT_TRUE(service_layer_server_core_.Follow("test", "test2"));
+  EXPECT_TRUE(service_layer_server_core_.Follow("test1", "test2"));
+}
+
+// `Follow` using not registerd `useranme` or `to_follow` should return false
+TEST_F(ServiceLayerServerCoreTest, FollowShouldReturnFalseForUnregisteredUser) {
+  EXPECT_TRUE(service_layer_server_core_.RegisterUser("test3"));
+  // existing username and not existng to_follow
+  EXPECT_FALSE(service_layer_server_core_.Follow("test3", "invalid_user"));
+  // not existing username and exsting to_follow
+  EXPECT_FALSE(service_layer_server_core_.Follow("invalid_user", "test3"));
+  /// not existing useranme and not existing to_follow
+  EXPECT_FALSE(
+      service_layer_server_core_.Follow("invalid_user", "invalid_user2"));
+}
+
+// `Follow` should not allow same  `username` and `to_follow`
+TEST_F(ServiceLayerServerCoreTest, FollowShouldReturnFalseForSelfFollowing) {
+  EXPECT_TRUE(service_layer_server_core_.RegisterUser("test4"));
+  // `username` and `to_follow` should be different
+  EXPECT_FALSE(service_layer_server_core_.Follow("test4", "invalid_user4"));
 }
 
 // `Chirp` should work
