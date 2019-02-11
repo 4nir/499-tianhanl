@@ -48,12 +48,15 @@ key_value_store_client
 key_value_store_server_sync
 key_value_store_client_sync
 key_value_store_client_sync_test
+service_layer_server_test
 store_test
 store_adapter
 store_adapter_test
 service_layer_server_sync
 service_layer_client_sync
 service_layer_client_sync_test
+service_layer_server_core
+service_layer_server_core_test
 Testing/
 command_client_core_test
 *.log
