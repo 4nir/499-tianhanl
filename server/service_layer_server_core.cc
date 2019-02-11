@@ -54,62 +54,38 @@ std::vector<Chirp> ServiceLayerServerCore::Read(const std::string id) {
 bool ServiceLayerServerCore::Monitor(
     const std::string& username,
     const std::function<bool(Chirp)>& handle_response, int time_limit) {
-  UserInfo curr_user_info = store_adapter_.GetUserInfo(username);
-  // Starts monitoring
-  std::thread monitoring(
-      [&curr_user_info, handle_response, time_limit, this]() {
-        std::vector<Chirp> chirps;
-        // Mark last_access_seconds, only post younger than it should be sent
-        int start_time = GetCurrentTime();
-        int last_access_seconds = start_time;
-        // Uses polling to check updates.
-        while (true) {
-          std::vector<Chirp> chirps;
-          // Checks if time limit has been reached
-          if (time_limit != -1 && GetCurrentTime() - start_time >= time_limit) {
+  // Starts polling
+  std::thread polling([&username, handle_response, time_limit, this]() {
+    // Mark last_access_seconds, only post younger than it should be sentZ
+    int start_time = GetCurrentTime();
+    int last_query_seconds = start_time;
+    // Uses polling to check updates.
+    while (true) {
+      // Checks if time limit has been reached
+      if (time_limit != -1 && GetCurrentTime() - start_time >= time_limit) {
+        return;
+      }
+      // wait 2 seconds
+      std::this_thread::sleep_for(std::chrono::seconds(2));
+      std::vector<Chirp> chirps =
+          GetFollowingChirpsAfterTime(username, last_query_seconds);
+      // Now `chirps` has all chirps posted after last_query_seconds
+      if (chirps.size() > 0) {
+        std::sort(chirps.begin(), chirps.end(), Older);
+        // Set last_query_seconds to lastest posted chirp's seconds + 1 to avoid
+        // duplication
+        last_query_seconds = chirps.back().timestamp().seconds() + 1;
+        for (Chirp chirp : chirps) {
+          bool ok = handle_response(chirp);
+          if (!ok) {
             return;
           }
-          // Store curent access time
-          int mark_seconds = last_access_seconds;
-          // wait 2 seconds
-          std::this_thread::sleep_for(std::chrono::seconds(2));
-          // If the users who current user is following has newer record,
-          // store the new chirp to chiprs
-          for (const std::string& username : curr_user_info.following()) {
-            UserInfo user_info = store_adapter_.GetUserInfo(username);
-            // If user record has been updated after mark_time
-            if (user_info.timestamp().seconds() >= mark_seconds) {
-              // Adds chirp posted after mark_time to chirps
-              for (int i = user_info.chirp_id_s_size() - 1; i >= 0; i--) {
-                Chirp chirp = store_adapter_.GetChirp(user_info.chirp_id_s(i));
-                // If the chirp is posted after mark_seconds, it is a new
-                // chirp
-                if (chirp.timestamp().seconds() >= mark_seconds) {
-                  last_access_seconds = std::max(
-                      last_access_seconds, int(chirp.timestamp().seconds()));
-                  chirps.push_back(chirp);
-                } else {
-                  break;
-                }
-              }
-            }
-          }
-          // Now `chirps` has all chirps posted after time of mark
-          if (chirps.size() > 0) {
-            // Increase last_access_seconds to avoid duplication
-            last_access_seconds += 1;
-            std::sort(chirps.begin(), chirps.end(), Older);
-            for (Chirp chirp : chirps) {
-              bool ok = handle_response(chirp);
-              if (!ok) {
-                return;
-              }
-            }
-          }
         }
-      });
+      }
+    }
+  });
   // Wait for monitoring to end
-  monitoring.join();
+  polling.join();
   return true;
 }
 
@@ -124,4 +100,29 @@ Timestamp* ServiceLayerServerCore::MakeCurrentTimestamp() {
 int ServiceLayerServerCore::GetCurrentTime() {
   auto mark_time = system_clock::now().time_since_epoch();
   return (duration_cast<seconds>(mark_time)).count();
+}
+
+std::vector<Chirp> ServiceLayerServerCore::GetFollowingChirpsAfterTime(
+    const std::string& curr_username, int start_time) {
+  UserInfo curr_user_info = store_adapter_.GetUserInfo(curr_username);
+  // If the users who current user is following have newer records,
+  // store the new chirp to chirps
+  std::vector<Chirp> chirps;
+  for (const std::string& username : curr_user_info.following()) {
+    UserInfo user_info = store_adapter_.GetUserInfo(username);
+    // If user record has been updated after start_time
+    if (user_info.timestamp().seconds() >= start_time) {
+      // Adds chirp posted after mark_time to chirps
+      for (int i = user_info.chirp_id_s_size() - 1; i >= 0; i--) {
+        Chirp chirp = store_adapter_.GetChirp(user_info.chirp_id_s(i));
+        // If the chirp is posted after mark_seconds, it is a new chirp
+        if (chirp.timestamp().seconds() >= start_time) {
+          chirps.push_back(chirp);
+        } else {
+          break;
+        }
+      }
+    }
+  }
+  return chirps;
 }

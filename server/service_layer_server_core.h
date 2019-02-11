@@ -52,17 +52,7 @@ class ServiceLayerServerCore {
 
   /*
   Streams chirps from all followed users. Current thread will be blocked after
-  this function was called.
-
-  Curent implementation workflow:
-  1. Check following users' timestamps which indicate their update times.
-  2. If a following user has a timestamp larger than mark time, it has been
-  updated after last polling.
-  3. If the user has been updated, checks if the user has chirps posted after
-  mark time.
-  4. Set last_access_seconds to avoid read the same chirp again in next
-  polling.
-  5. Repeat until client ends.
+  this function was called. Currently using polling to check new updates.
 
   The order of reponse will from oldest chirp to latest chirp
 
@@ -83,12 +73,21 @@ class ServiceLayerServerCore {
   Timestamp* MakeCurrentTimestamp();
 
   // Determine is lhs chirp older than rhs chirp
-  static bool Older(Chirp lhs, Chirp rhs) {
+  static bool Older(const Chirp& lhs, const Chirp& rhs) {
     lhs.timestamp().seconds() < rhs.timestamp().seconds();
   }
 
   // Get current time in seconds
   int GetCurrentTime();
+
+  // Get new chiprs from users followed by `username` after `time` in seconds
+  // 1. Check following users' timestamps which indicate their update times.
+  // 2. If a following `user_info` has a timestamp larger than mark time, the
+  // `user_info` has been updated after last polling.
+  // 3. If the user has been updated, checks if the user has chirps posted after
+  // start_time
+  std::vector<Chirp> GetFollowingChirpsAfterTime(
+      const std::string& curr_username, int start_time);
 
   //  Interface to communicate with store server
   StoreAdapter store_adapter_;
