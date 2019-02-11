@@ -80,12 +80,20 @@ class ServiceLayerServerCore {
   // Get current time in seconds
   int GetCurrentTime();
 
-  // Get new chiprs from users followed by `username` after `time` in seconds
+  // Polling function used by monitor to retrive updates
+  // Since without `time_limit` this function will run in infinite loop, it is
+  // suggested to use this function inside a thread.
+  void PollUpdates(const std::string& username,
+                   const std::function<bool(Chirp)>& handle_response,
+                   const int time_limit);
+
+  // Get new chiprs from users followed by `username` after `time` in
+  // seconds
   // 1. Check following users' timestamps which indicate their update times.
-  // 2. If a following `user_info` has a timestamp larger than mark time, the
-  // `user_info` has been updated after last polling.
-  // 3. If the user has been updated, checks if the user has chirps posted after
-  // start_time
+  // 2. If a following `user_info` has a timestamp larger than mark time,
+  // the `user_info` has been updated after last polling.
+  // 3. If the user has been updated, checks if the user has chirps posted
+  // after start_time
   std::vector<Chirp> GetFollowingChirpsAfterTime(
       const std::string& curr_username, int start_time);
 

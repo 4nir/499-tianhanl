@@ -55,35 +55,8 @@ bool ServiceLayerServerCore::Monitor(
     const std::string& username,
     const std::function<bool(Chirp)>& handle_response, int time_limit) {
   // Starts polling
-  std::thread polling([&username, handle_response, time_limit, this]() {
-    // Mark last_access_seconds, only post younger than it should be sentZ
-    int start_time = GetCurrentTime();
-    int last_query_seconds = start_time;
-    // Uses polling to check updates.
-    while (true) {
-      // Checks if time limit has been reached
-      if (time_limit != -1 && GetCurrentTime() - start_time >= time_limit) {
-        return;
-      }
-      // wait 2 seconds
-      std::this_thread::sleep_for(std::chrono::seconds(2));
-      std::vector<Chirp> chirps =
-          GetFollowingChirpsAfterTime(username, last_query_seconds);
-      // Now `chirps` has all chirps posted after last_query_seconds
-      if (chirps.size() > 0) {
-        std::sort(chirps.begin(), chirps.end(), Older);
-        // Set last_query_seconds to lastest posted chirp's seconds + 1 to avoid
-        // duplication
-        last_query_seconds = chirps.back().timestamp().seconds() + 1;
-        for (Chirp chirp : chirps) {
-          bool ok = handle_response(chirp);
-          if (!ok) {
-            return;
-          }
-        }
-      }
-    }
-  });
+  std::thread polling(&ServiceLayerServerCore::PollUpdates, this, username,
+                      handle_response, time_limit);
   // Wait for monitoring to end
   polling.join();
   return true;
@@ -125,4 +98,36 @@ std::vector<Chirp> ServiceLayerServerCore::GetFollowingChirpsAfterTime(
     }
   }
   return chirps;
+}
+
+void ServiceLayerServerCore::PollUpdates(
+    const std::string& username,
+    const std::function<bool(Chirp)>& handle_response, const int time_limit) {
+  // Mark last_access_seconds, only post younger than it should be sentZ
+  int start_time = GetCurrentTime();
+  int last_query_seconds = start_time;
+  // Uses polling to check updates.
+  while (true) {
+    // Checks if time limit has been reached
+    if (time_limit != -1 && GetCurrentTime() - start_time >= time_limit) {
+      return;
+    }
+    // wait 2 seconds
+    std::this_thread::sleep_for(std::chrono::seconds(2));
+    std::vector<Chirp> chirps =
+        GetFollowingChirpsAfterTime(username, last_query_seconds);
+    // Now `chirps` has all chirps posted after last_query_seconds
+    if (chirps.size() > 0) {
+      std::sort(chirps.begin(), chirps.end(), Older);
+      // Set last_query_seconds to lastest posted chirp's seconds + 1 to avoid
+      // duplication
+      last_query_seconds = chirps.back().timestamp().seconds() + 1;
+      for (Chirp chirp : chirps) {
+        bool ok = handle_response(chirp);
+        if (!ok) {
+          return;
+        }
+      }
+    }
+  }
 }
