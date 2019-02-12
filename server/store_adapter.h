@@ -50,6 +50,9 @@ class StoreAdapter {
   //  Gets the chirp for a given chirp_id
   Chirp GetChirp(const std::string& chirp_id);
 
+  // Checks is a key already existed in the store
+  bool CheckDoesKeyExist(const std::string& key);
+
  private:
   // Gets the IDs of replies to `curr_id` chirp
   std::vector<std::string> GetReplyIds(const std::string& curr_id);

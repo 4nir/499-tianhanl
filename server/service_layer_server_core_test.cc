@@ -20,6 +20,8 @@ TEST_F(ServiceLayerServerCoreTest, RegisterUserShouldWork) {
   EXPECT_TRUE(service_layer_server_core_.RegisterUser("test"));
   // Username must not be blank
   EXPECT_FALSE(service_layer_server_core_.RegisterUser(""));
+  // Same username cannot be registered twice
+  EXPECT_FALSE(service_layer_server_core_.RegisterUser("test"));
 }
 
 //  `Follow` should work

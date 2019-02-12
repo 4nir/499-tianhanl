@@ -5,33 +5,31 @@ void CommandClientCore::Run(const std::string& register_user,
                             const std::string& reply, const std::string& follow,
                             const std::string& read, bool monitor) {
   service_layer_client_.Init();
-
-  // Retrives current user's username.
-  // Clients must have a username to be authorized for all activities
-  std::string username = "";
   if (register_user != "") {
-    username = register_user;
-    // register_user this username
-    bool ok = service_layer_client_.RegisterUser(username);
+    bool ok = service_layer_client_.RegisterUser(register_user);
     if (!ok) {
-      cout << "username: " << username << " cannot be registered" << endl;
-      return;
+      cout << "username: " << register_user << " cannot be registered" << endl;
+    } else {
+      cout << "username: " << register_user << " has been registered" << endl;
     }
-  } else if (user != "") {
-    username = user;
-  } else {
-    cout << "A username is required to chirp. Please use --register or "
-            "--user to"
-         << " provide a username." << endl;
     return;
   }
 
+  // Retrives current user's username.
+  // Clients must have a username to be authorized for all activities
+  if (user == "") {
+    cout << "a username is required for chirp, reply, follow, read, and ";
+    cout << "monitor, plase provide a username using --usesr" << endl;
+  }
+
   if (follow != "") {
-    bool ok = service_layer_client_.Follow(username, follow);
+    bool ok = service_layer_client_.Follow(user, follow);
     if (!ok) {
       cout << "username: " << follow << " cannot be followed" << endl;
-      return;
+    } else {
+      cout << "username: " << follow << " has been followed" << endl;
     }
+    return;
   }
 
   // use must reply with a chirp
@@ -41,16 +39,19 @@ void CommandClientCore::Run(const std::string& register_user,
 
   // Creates a chirp if has one.
   if (chirp != "") {
-    SendChirp(username, chirp, reply);
+    SendChirp(user, chirp, reply);
+    return;
   }
 
   // Read chirp thread if supplied a --read chirp_id
   if (read != "") {
     ReadChirpThread(read);
+    return;
   }
 
   if (monitor) {
-    service_layer_client_.Monitor(username,
+    std::cout << "Monitoring is started" << std::endl;
+    service_layer_client_.Monitor(user,
                                   [this](Chirp chirp) { PrintChirp(chirp); });
   }
 }
@@ -69,6 +70,10 @@ void CommandClientCore::SendChirp(const std::string& username,
 
 void CommandClientCore::ReadChirpThread(const std::string& id) {
   std::vector<Chirp> chirps = service_layer_client_.Read(id);
+  if (chirps.size() == 0) {
+    cout << "Cannot fetch chirp thread with given id" << endl;
+    return;
+  }
   for (Chirp chirp : chirps) {
     PrintChirp(chirp);
   }

@@ -16,6 +16,7 @@ using std::endl;
 // handles fetching and distplying data
 class CommandClientCore {
  public:
+  //  Only one operation will be run at each invocation
   void Run(const std::string& register_user, const std::string& user,
            const std::string& chirp, const std::string& reply,
            const std::string& follow, const std::string& read, bool monitor);

@@ -86,7 +86,7 @@ class ServiceLayerServerCore {
   // suggested to use this function inside a thread.
   void PollUpdates(const std::string& username,
                    const std::function<bool(Chirp)>& handle_response,
-                   const int time_limit);
+                   const int interval, const int time_limit);
 
   // Get new chiprs from users followed by `username` after `time` in
   // seconds
