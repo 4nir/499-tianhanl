@@ -62,8 +62,19 @@ sudo apt-get upgrade
 # install submodule dependency
 git submodule init
 git submodule update
+# Install packages
+# google test
+cd third_party/googletest
+cmake .
+make
+sudo make install
+# gflags
+cd third_party/gflags
+cmake .
+make
+sudo make install
 # in root folder
-cmake
+sudo cmake .
 make
 ```
 
