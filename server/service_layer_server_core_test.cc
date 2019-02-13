@@ -112,6 +112,18 @@ TEST_F(ServiceLayerServerCoreTest, MonitorShouldWork) {
   EXPECT_EQ(parent_chirp.id(), output_chirp.id());
 }
 
+// `Monitor` should return false for invalid username and unregistered user
+TEST_F(ServiceLayerServerCoreTest, MonitorShouldReturnFalseOnInvalidInput) {
+  // After a folling user post a chrip, the follower monitoring should be able
+  // receive it.
+  bool empty_ok = service_layer_server_core_.Monitor(
+      "empty_user", [](Chirp chirp) { return false; });
+  EXPECT_FALSE(empty_ok);
+  bool unregistered_ok = service_layer_server_core_.Monitor(
+      "unregistered_user", [](Chirp chirp) { return false; });
+  EXPECT_FALSE(unregistered_ok);
+}
+
 int main(int argc, char** argv) {
   ::testing::InitGoogleTest(&argc, argv);
   return RUN_ALL_TESTS();

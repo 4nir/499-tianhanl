@@ -50,7 +50,7 @@ class StoreAdapter {
   //  Gets the chirp for a given chirp_id
   Chirp GetChirp(const std::string& chirp_id);
 
-  // Checks is a key already existed in the store
+  // Checks is a key already existed in the store, return true if it is existed
   bool CheckDoesKeyExist(const std::string& key);
 
  private:

@@ -95,6 +95,8 @@ class ServiceLayerServerCore {
   // the `user_info` has been updated after last polling.
   // 3. If the user has been updated, checks if the user has chirps posted
   // after start_time
+  //
+  // curr_username should not be empty
   std::vector<Chirp> GetFollowingChirpsAfterTime(
       const std::string& curr_username, int start_time);
 

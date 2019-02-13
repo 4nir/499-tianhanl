@@ -21,12 +21,12 @@ bool StoreAdapter::StoreUserInfo(const UserInfo& user_info) {
 }
 
 UserInfo StoreAdapter::GetUserInfo(const std::string& username) {
-  // Get serialized UserInfo for the username and store in `serialized_string`
   UserInfo user_info;
   // username must be not empty
   if (username == "") {
     return user_info;
   }
+  // Get serialized UserInfo for the username and store in `serialized_string`
   std::vector<std::string> keys = {username};
   std::string serialized_string;
   store_client_->Get(keys, [&serialized_string](std::string value) {
@@ -69,7 +69,7 @@ Chirp StoreAdapter::GetChirp(const std::string& chirp_id) {
 }
 
 bool StoreAdapter::CheckDoesKeyExist(const std::string& key) {
-  std::string result;
+  std::string result = "";
   std::vector<std::string> keys = {key};
   store_client_->Get(keys, [&result](std::string value) { result = value; });
   return result != "";
@@ -125,12 +125,11 @@ bool StoreAdapter::StoreReply(const std::string& curr_id,
 
   // Create a empty ReplyRecord
   ReplyRecord reply_record;
-  reply_record.set_id(parent_id);
-
   // If previous record exists, restores its data
   if (serialized_string != "") {
     reply_record.ParseFromString(serialized_string);
   }
+  reply_record.set_id(parent_id);
   reply_record.add_reply_ids(curr_id);
 
   // Store updated ReplyRecord

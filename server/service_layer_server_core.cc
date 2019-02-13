@@ -69,6 +69,10 @@ bool ServiceLayerServerCore::Monitor(
     const std::string& username,
     const std::function<bool(Chirp)>& handle_response, int interval,
     int time_limit) {
+  // Cannot monitor for a not registered user
+  if (username == "" || !store_adapter_.CheckDoesKeyExist(username)) {
+    return false;
+  }
   // Starts polling
   std::thread polling(&ServiceLayerServerCore::PollUpdates, this, username,
                       handle_response, interval, time_limit);
@@ -92,6 +96,8 @@ int ServiceLayerServerCore::GetCurrentTime() {
 
 std::vector<Chirp> ServiceLayerServerCore::GetFollowingChirpsAfterTime(
     const std::string& curr_username, int start_time) {
+  assert(curr_username != "");
+  // Gets latest  user info incase the followings have been updated
   UserInfo curr_user_info = store_adapter_.GetUserInfo(curr_username);
   // If the users who current user is following have newer records,
   // store the new chirp to chirps
