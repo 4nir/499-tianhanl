@@ -40,7 +40,9 @@ glog
 git clone -b $(curl -L https://grpc.io/release) https://github.com/grpc/grpc
 cd grpc
 git submodule update --init
-
+# From the grpc repository root
+make
+make install
 # Protobuf
 cd grpc/third_party/protobuf
 sudo make install   # 'make' should have been run by core grpc
