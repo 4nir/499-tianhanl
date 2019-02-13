@@ -20,6 +20,7 @@ void CommandClientCore::Run(const std::string& register_user,
   if (user == "") {
     cout << "a username is required for chirp, reply, follow, read, and ";
     cout << "monitor, plase provide a username using --usesr" << endl;
+    return;
   }
 
   if (follow != "") {
