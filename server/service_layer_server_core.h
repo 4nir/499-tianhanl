@@ -8,11 +8,10 @@
 #include <thread>
 #include <vector>
 
-#include "./dist/service_layer.grpc.pb.h"
-#include "store_adapter.h"
-
 #include <grpc/support/log.h>
 #include <grpcpp/grpcpp.h>
+#include "dist/service_layer.grpc.pb.h"
+#include "store_adapter.h"
 
 using chirp::Chirp;
 using chirp::Timestamp;

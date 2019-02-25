@@ -1,4 +1,5 @@
 #include "store.h"
+
 #include <gtest/gtest.h>
 
 TEST(StoreTest, GetShouldReturnEmptyStringIfKeyDoesNotExist) {

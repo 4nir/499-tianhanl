@@ -1,12 +1,13 @@
 #ifndef COMMAND_CLIENT_CORE
 #define COMMAND_CLIENT_CORE
 
-#include <gflags/gflags.h>
-#include <glog/logging.h>
 #include <iostream>
 #include <memory>
 #include <string>
 #include <vector>
+
+#include <gflags/gflags.h>
+#include <glog/logging.h>
 #include "../server/service_layer_client_sync.h"
 
 using std::cout;

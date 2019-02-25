@@ -1,9 +1,11 @@
 #include "store_adapter.h"
-#include <gtest/gtest.h>
+
 #include <iostream>
 #include <memory>
 #include <string>
 #include <vector>
+
+#include <gtest/gtest.h>
 
 class StoreAdapterTest : public ::testing::Test {
  protected:

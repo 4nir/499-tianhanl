@@ -1,4 +1,4 @@
-#include "./service_layer_server_core.h"
+#include "service_layer_server_core.h"
 
 void ServiceLayerServerCore::Init(bool dev) { store_adapter_.Init(dev); }
 

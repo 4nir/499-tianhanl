@@ -1,11 +1,12 @@
 #ifndef DEV_KEY_VALUE_STORE_CLIENT_SYNC
 #define DEV_KEY_VALUE_STORE_CLIENT_SYNC
+
 #include <functional>
 #include <iostream>
 #include <string>
 #include <vector>
 
-#include "./key_value_store_client_interface.h"
+#include "key_value_store_client_interface.h"
 #include "store.h"
 
 // Client interface to communicate with key_value_store_server_sync.

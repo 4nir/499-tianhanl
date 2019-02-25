@@ -20,11 +20,10 @@
 #include <memory>
 #include <string>
 
-#include "./dist/key_value_store.grpc.pb.h"
-#include "store.h"
-
 #include <grpc/support/log.h>
 #include <grpcpp/grpcpp.h>
+#include "dist/key_value_store.grpc.pb.h"
+#include "store.h"
 
 using chirp::DeleteReply;
 using chirp::DeleteRequest;

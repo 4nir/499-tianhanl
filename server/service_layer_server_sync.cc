@@ -1,3 +1,5 @@
+#include "service_layer_server_core.h"
+
 #include <algorithm>
 #include <chrono>
 #include <iostream>
@@ -6,11 +8,9 @@
 #include <thread>
 #include <vector>
 
-#include "./dist/service_layer.grpc.pb.h"
-#include "service_layer_server_core.h"
-
 #include <grpc/support/log.h>
 #include <grpcpp/grpcpp.h>
+#include "dist/service_layer.grpc.pb.h"
 
 using chirp::Chirp;
 using chirp::ChirpReply;

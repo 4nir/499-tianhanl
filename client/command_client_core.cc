@@ -1,4 +1,4 @@
-#include "./command_client_core.h"
+#include "command_client_core.h"
 
 void CommandClientCore::Run(const std::string& register_user,
                             const std::string& user, const std::string& chirp,

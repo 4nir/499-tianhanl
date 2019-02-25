@@ -1,5 +1,6 @@
 #ifndef KEY_VALUE_STORE_CLIENT_SYNC
 #define KEY_VALUE_STORE_CLIENT_SYNC
+
 #include <functional>
 #include <iostream>
 #include <memory>
@@ -7,14 +8,13 @@
 #include <thread>
 #include <vector>
 
-#include "./dist/key_value_store.grpc.pb.h"
-#include "./key_value_store_client_interface.h"
-
 #include <grpc/grpc.h>
 #include <grpcpp/channel.h>
 #include <grpcpp/client_context.h>
 #include <grpcpp/create_channel.h>
 #include <grpcpp/security/credentials.h>
+#include "./dist/key_value_store.grpc.pb.h"
+#include "./key_value_store_client_interface.h"
 
 using chirp::DeleteReply;
 using chirp::DeleteRequest;

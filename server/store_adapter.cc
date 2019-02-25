@@ -1,4 +1,5 @@
 #include "store_adapter.h"
+
 #include <iterator>
 
 void StoreAdapter::Init(bool dev) {
