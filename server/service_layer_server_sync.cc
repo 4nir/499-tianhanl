@@ -133,7 +133,7 @@ class ServiceLayerServiceImpl final : public ServiceLayer::Service {
 
  private:
   // Clones the content of chirp into mutable_chirp_pointer
-  void CloneChirp(Chirp chirp, Chirp* mutable_chirp) {
+  void CloneChirp(const Chirp& chirp, Chirp* mutable_chirp) {
     Timestamp* timestamp = new Timestamp;
     timestamp->set_seconds(chirp.timestamp().seconds());
     timestamp->set_useconds(chirp.timestamp().useconds());

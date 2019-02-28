@@ -52,6 +52,7 @@ void CommandClientCore::Run(const std::string& register_user,
 
   if (monitor) {
     std::cout << "Monitoring is started" << std::endl;
+    // Use lambda to maintain reference to stream
     service_layer_client_.Monitor(user,
                                   [this](Chirp chirp) { PrintChirp(chirp); });
   }
@@ -72,7 +73,7 @@ void CommandClientCore::SendChirp(const std::string& username,
 void CommandClientCore::ReadChirpThread(const std::string& id) {
   std::vector<Chirp> chirps = service_layer_client_.Read(id);
   if (chirps.size() == 0) {
-    cout << "Cannot fetch chirp thread with given id" << endl;
+    cout << "Cannot fetch chirp thread with id = " << id << endl;
     return;
   }
   for (Chirp chirp : chirps) {

@@ -69,7 +69,7 @@ Chirp StoreAdapter::GetChirp(const std::string& chirp_id) {
   return chirp;
 }
 
-bool StoreAdapter::CheckDoesKeyExist(const std::string& key) {
+bool StoreAdapter::KeyExists(const std::string& key) {
   std::string result = "";
   std::vector<std::string> keys = {key};
   store_client_->Get(keys, [&result](std::string value) { result = value; });

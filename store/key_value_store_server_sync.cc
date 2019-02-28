@@ -43,9 +43,6 @@ const std::string STORE_SERVER_ADDRESS("0.0.0.0:50000");
 
 class KeyValueStoreServiceImpl final : public KeyValueStore::Service {
  public:
-  KeyValueStoreServiceImpl() { store_ = new Store; }
-  ~KeyValueStoreServiceImpl() { delete store_; }
-
   // Stores key and value specified in request, return
   // `StatusCode::INVALID_ARGUMENT` when supplied key and value cannot be
   // stored.
@@ -53,7 +50,7 @@ class KeyValueStoreServiceImpl final : public KeyValueStore::Service {
              PutReply* reply) override {
     const std::string& key = request->key();
     const std::string& value = request->value();
-    bool ok = store_->Put(key, value);
+    bool ok = store_.Put(key, value);
     if (ok) {
       return Status::OK;
     } else {
@@ -67,7 +64,7 @@ class KeyValueStoreServiceImpl final : public KeyValueStore::Service {
     GetRequest request;
     while (stream->Read(&request)) {
       const std::string& key = request.key();
-      const std::string& value = store_->Get(key);
+      const std::string& value = store_.Get(key);
       GetReply reply;
       reply.set_value(value);
       stream->Write(reply);
@@ -79,7 +76,7 @@ class KeyValueStoreServiceImpl final : public KeyValueStore::Service {
   Status deletekey(ServerContext* context, const DeleteRequest* request,
                    DeleteReply* reply) override {
     const std::string& key = request->key();
-    bool ok = store_->Remove(key);
+    bool ok = store_.Remove(key);
     if (ok) {
       return Status::OK;
     } else {
@@ -89,7 +86,7 @@ class KeyValueStoreServiceImpl final : public KeyValueStore::Service {
 
  private:
   // Store instance used to store key value pairs
-  Store* store_;
+  Store store_;
 };
 
 void RunServer() {

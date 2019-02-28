@@ -10,6 +10,7 @@
 class Store {
  public:
   // returns empty string if specific keyed item is not exist
+  // TODO: What if value is empty
   std::string Get(const std::string &key);
 
   // returns false when the key and value cannot be put into map_
