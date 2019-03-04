@@ -6,6 +6,7 @@
 #include <string>
 #include <vector>
 
+namespace chirpsystem {
 // Defines interface for communicate with key_value_store_server_sync
 class KeyValueStoreClientInterface {
  public:
@@ -24,4 +25,5 @@ class KeyValueStoreClientInterface {
   // Deletes the key-value pair in store for the key, return true if succeed
   virtual bool DeleteKey(const std::string& key) = 0;
 };
+}  // namespace chirpsystem
 #endif

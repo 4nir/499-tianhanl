@@ -34,6 +34,7 @@ using grpc::Status;
 using grpc::StatusCode;
 using namespace std::chrono;
 
+namespace chirpsystem {
 const std::string SERVICE_SERVER_ADDRESS("0.0.0.0:50002");
 
 // Implementation of ServiceLayerService
@@ -165,8 +166,9 @@ void RunServer() {
   // responsible for shutting down the server for this call to ever return.
   server->Wait();
 }
+}  // namespace chirpsystem
 
 int main(int argc, char** argv) {
-  RunServer();
+  chirpsystem::RunServer();
   return 0;
 }

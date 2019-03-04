@@ -7,6 +7,7 @@
 
 #include <gtest/gtest.h>
 
+namespace chirpsystem {
 class StoreAdapterTest : public ::testing::Test {
  protected:
   //  Turn on dev key
@@ -148,6 +149,7 @@ TEST_F(StoreAdapterTest, GetInvalidChirpShoulReturnEmptyChirp) {
   Chirp invalid_id_chirp = store_adapter_.GetChirp("invalid_id");
   EXPECT_EQ("", invalid_id_chirp.id());
 }
+}  // namespace chirpsystem
 
 int main(int argc, char** argv) {
   ::testing::InitGoogleTest(&argc, argv);

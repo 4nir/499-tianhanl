@@ -1,6 +1,7 @@
 #include "store.h"
 
- std::optional<std::string> Store::Get(const std::string &key) {
+namespace chirpsystem {
+std::optional<std::string> Store::Get(const std::string &key) {
   std::lock_guard<std::mutex> guard(map_mutex_);
   auto search_result = map_.find(key);
   if (search_result == map_.end()) {
@@ -21,3 +22,4 @@ bool Store::Remove(const std::string &key) {
   std::lock_guard<std::mutex> guard(map_mutex_);
   return map_.erase(key);
 }
+}  // namespace chirpsystem

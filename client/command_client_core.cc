@@ -1,5 +1,6 @@
 #include "command_client_core.h"
 
+namespace chirpsystem {
 void CommandClientCore::Run(const std::string& register_user,
                             const std::string& user, const std::string& chirp,
                             const std::string& reply, const std::string& follow,
@@ -87,3 +88,4 @@ void CommandClientCore::PrintChirp(Chirp chirp) {
   cout << "Text: " << chirp.text() << endl;
   cout << endl;
 }
+}  // namespace chirpsystem

@@ -9,6 +9,7 @@
 #include "key_value_store_client_interface.h"
 #include "store.h"
 
+namespace chirpsystem {
 // Client interface to communicate with key_value_store_server_sync.
 class DevKeyValueStoreClient : public KeyValueStoreClientInterface {
  public:
@@ -31,4 +32,5 @@ class DevKeyValueStoreClient : public KeyValueStoreClientInterface {
   //  Store instance used to store key value pairs
   Store store_;
 };
+}  // namespace chirpsystem
 #endif

@@ -6,6 +6,7 @@
 #include <string>
 #include <unordered_map>
 
+namespace chirpsystem {
 // Thread safe hash table based on std::unordered_map, mutators and accessors
 // are guarded via mutex.
 class Store {
@@ -25,5 +26,6 @@ class Store {
   // prevents race condition
   std::mutex map_mutex_;
 };
+}  // namespace chirpsystem
 
 #endif

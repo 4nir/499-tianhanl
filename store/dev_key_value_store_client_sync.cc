@@ -1,5 +1,6 @@
 #include "dev_key_value_store_client_sync.h"
 
+namespace chirpsystem {
 void DevKeyValueStoreClient::Init() { return; }
 
 bool DevKeyValueStoreClient::Put(const std::string& key,
@@ -19,3 +20,4 @@ bool DevKeyValueStoreClient::Get(
 bool DevKeyValueStoreClient::DeleteKey(const std::string& key) {
   return store_.Remove(key);
 }
+}  // namespace chirpsystem

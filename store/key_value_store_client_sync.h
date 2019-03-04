@@ -28,6 +28,7 @@ using grpc::ClientContext;
 using grpc::ClientReaderWriter;
 using grpc::Status;
 
+namespace chirpsystem {
 const std::string STORE_SERVER_ADDRESS("0.0.0.0:50000");
 
 // Client interface to communicate with key_value_store_server_sync.
@@ -54,4 +55,5 @@ class KeyValueStoreClient : public KeyValueStoreClientInterface {
   //  Interface for RPCs to call
   std::unique_ptr<KeyValueStore::Stub> stub_;
 };
+}  // namespace chirpsystem
 #endif

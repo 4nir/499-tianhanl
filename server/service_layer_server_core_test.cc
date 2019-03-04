@@ -8,7 +8,7 @@
 #include <gtest/gtest.h>
 
 // TODO: Add tests for error cases
-
+namespace chirpsystem {
 class ServiceLayerServerCoreTest : public ::testing::Test {
  protected:
   //  Truen on dev
@@ -125,6 +125,7 @@ TEST_F(ServiceLayerServerCoreTest, MonitorShouldReturnFalseOnInvalidInput) {
       "unregistered_user", [](Chirp chirp) { return false; });
   EXPECT_FALSE(unregistered_ok);
 }
+}  // namespace chirpsystem
 
 int main(int argc, char** argv) {
   ::testing::InitGoogleTest(&argc, argv);

@@ -13,6 +13,7 @@
 using std::cout;
 using std::endl;
 
+namespace chirpsystem {
 // A core implements command client's features for easier testing
 // handles fetching and distplying data
 class CommandClientCore {
@@ -39,5 +40,6 @@ class CommandClientCore {
   // client instance used to communicate with server
   ServiceLayerClient service_layer_client_;
 };
+}  // namespace chirpsystem
 
 #endif
