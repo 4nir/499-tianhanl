@@ -3,7 +3,7 @@
 namespace chirpsystem {
 void ServiceLayerClient::Init() {
   this->stub_ = ServiceLayer::NewStub(grpc::CreateChannel(
-      SERVICE_SERVER_ADDRESS, grpc::InsecureChannelCredentials()));
+      kSERVICE_SERVER_ADDRESS, grpc::InsecureChannelCredentials()));
 }
 
 bool ServiceLayerClient::RegisterUser(const std::string& username) {

@@ -31,7 +31,7 @@ using grpc::ClientReader;
 using grpc::Status;
 
 namespace chirpsystem {
-const std::string SERVICE_SERVER_ADDRESS("0.0.0.0:50002");
+const std::string kSERVICE_SERVER_ADDRESS("0.0.0.0:50002");
 
 // Client interface to communicate with service layer server.
 class ServiceLayerClient {
