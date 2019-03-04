@@ -1,10 +1,10 @@
 #include "store.h"
 
-std::string Store::Get(const std::string &key) {
+ std::optional<std::string> Store::Get(const std::string &key) {
   std::lock_guard<std::mutex> guard(map_mutex_);
   auto search_result = map_.find(key);
   if (search_result == map_.end()) {
-    return "";
+    return std::nullopt;
   } else {
     return search_result->second;
   }

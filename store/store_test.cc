@@ -6,7 +6,7 @@ TEST(StoreTest, GetShouldReturnEmptyStringIfKeyDoesNotExist) {
   Store store;
   // Since store is initially empty, "test" key is not exist. Get("test") should
   // return empty string;
-  EXPECT_EQ("", store.Get("test"));
+  EXPECT_FALSE(store.Get("test").has_value());
 }
 
 TEST(StoreTest, GetShouldReturnCorrespondingValueIfKeyExist) {
@@ -22,7 +22,7 @@ TEST(StoreTest, PutShouldPutValueToKeyLocation) {
   store.Put("test", "test1");
   // After user have put ("test", "test") key value pair, Get("test") should
   // return "test"
-  EXPECT_EQ("test1", store.Get("test"));
+  EXPECT_EQ("test1", store.Get("test").value_or(""));
 }
 
 TEST(StoreTest, RemoveShouldReturnFalseWhenKeyNotExist) {
@@ -35,11 +35,11 @@ TEST(StoreTest, RemoveShouldReturnFalseWhenKeyNotExist) {
 TEST(StoreTest, RemoveShouldRemoveCorrespondingValueWhenKeyExist) {
   Store store;
   store.Put("test", "test1");
-  EXPECT_EQ("test1", store.Get("test"));
+  EXPECT_EQ("test1", store.Get("test").value_or(""));
   store.Remove("test");
   // After Remove("test") has been called, Get("test") should not be able to
   // find the key and return empty string.
-  EXPECT_EQ("", store.Get("test"));
+  EXPECT_FALSE(store.Get("test").has_value());
 }
 
 int main(int argc, char **argv) {

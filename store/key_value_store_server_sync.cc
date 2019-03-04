@@ -18,6 +18,7 @@
 
 #include <iostream>
 #include <memory>
+#include <optional>
 #include <string>
 
 #include <grpc/support/log.h>
@@ -63,10 +64,16 @@ class KeyValueStoreServiceImpl final : public KeyValueStore::Service {
              ServerReaderWriter<GetReply, GetRequest>* stream) override {
     GetRequest request;
     while (stream->Read(&request)) {
-      const std::string& key = request.key();
-      const std::string& value = store_.Get(key);
       GetReply reply;
-      reply.set_value(value);
+      const std::string& key = request.key();
+      std::optional<std::string> value = store_.Get(key);
+      if (value) {
+        reply.set_value(*value);
+      } else {
+        Status status(grpc::StatusCode::NOT_FOUND,
+                      "Cannot found value for key " + key);
+        return status;
+      }
       stream->Write(reply);
     }
     return Status::OK;
