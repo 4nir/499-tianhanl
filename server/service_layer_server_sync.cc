@@ -8,6 +8,7 @@
 #include <thread>
 #include <vector>
 
+#include <glog/logging.h>
 #include <grpc/support/log.h>
 #include <grpcpp/grpcpp.h>
 #include "dist/service_layer.grpc.pb.h"
@@ -44,18 +45,26 @@ class ServiceLayerServiceImpl final : public ServiceLayer::Service {
   // Registers the given non-blank username
   Status registeruser(ServerContext* context, const RegisterRequest* request,
                       RegisterReply* reply) override {
+    LOG(INFO) << "Received registeruser request for username: "
+              << request->username();
     bool ok = service_layer_server_core_.RegisterUser(request->username());
     if (ok) {
+      LOG(INFO) << "Registered User: " << request->username();
       return Status::OK;
     } else {
+      LOG(ERROR) << "Cannot register username: " << request->username();
       return Status(StatusCode::INVALID_ARGUMENT,
-                    "Cannot register with given username");
+                    "Cannot register username: " + request->username());
     }
   }
 
   // Posts a new chirp (optionally as a reply)
   Status chirp(ServerContext* context, const ChirpRequest* request,
                ChirpReply* reply) {
+    LOG(INFO) << "Received chirp request with following information: "
+              << "Username: " << request->username() << "\n"
+              << "Text: " << request->text() << "\n"
+              << "Parent ID: " << request->parent_id() << "\n";
     Chirp chirp;
     ServiceLayerServerCore::ChirpStatus chirp_status =
         service_layer_server_core_.SendChirp(
@@ -63,14 +72,17 @@ class ServiceLayerServiceImpl final : public ServiceLayer::Service {
     // return `Status` according to `chirp_status`
     switch (chirp_status) {
       case ServiceLayerServerCore::CHIRP_SUCCEED: {
+        LOG(INFO) << "Chirp succeed";
         CloneChirp(chirp, reply->mutable_chirp());
         return Status::OK;
       }
       case ServiceLayerServerCore::CHIRP_FAILED: {
+        LOG(ERROR) << "Cannot store chirp with givien input";
         return Status(StatusCode::INVALID_ARGUMENT,
                       "Cannot store chirp with given input");
       }
       case ServiceLayerServerCore::UPDATE_USER_FAILED: {
+        LOG(ERROR) << "Cannot associate chirp with current user";
         return Status(StatusCode::INVALID_ARGUMENT,
                       "Cannot associate chirp with current user");
       }
@@ -83,11 +95,15 @@ class ServiceLayerServiceImpl final : public ServiceLayer::Service {
   // Starts following a given user
   Status follow(ServerContext* context, const FollowRequest* request,
                 FollowReply* response) override {
+    LOG(INFO) << "Received follow request for username: " << request->username()
+              << " to follow: " << request->to_follow();
     bool ok = service_layer_server_core_.Follow(request->username(),
                                                 request->to_follow());
     if (ok) {
       return Status::OK;
     } else {
+      LOG(ERROR) << "Cannot complete follow for: " << request->username()
+                 << " to follow: " << request->to_follow();
       return Status(StatusCode::INVALID_ARGUMENT,
                     "Cannot follow with given input");
     }
@@ -98,9 +114,11 @@ class ServiceLayerServiceImpl final : public ServiceLayer::Service {
   // Chirp(curr_chirp_id)->Chirp(reply_id)
   Status read(ServerContext* context, const ReadRequest* request,
               ReadReply* response) {
+    LOG(INFO) << "Received read request for id: " << request->chirp_id();
     std::vector<Chirp> chirp_thread =
         service_layer_server_core_.Read(request->chirp_id());
     if (chirp_thread.size() < 1) {
+      LOG(ERROR) << "Cannot read chirps for: " << request->chirp_id();
       return Status(StatusCode::INVALID_ARGUMENT,
                     "Cannot find corresponding chirp");
     }
@@ -117,6 +135,7 @@ class ServiceLayerServiceImpl final : public ServiceLayer::Service {
   */
   Status monitor(ServerContext* context, const MonitorRequest* request,
                  ServerWriter<MonitorReply>* writer) {
+    LOG(INFO) << "Received monitor request for user: " << request->username();
     bool monitor_ok = service_layer_server_core_.Monitor(
         request->username(), [writer, this](Chirp chirp) {
           MonitorReply reply;
@@ -127,6 +146,7 @@ class ServiceLayerServiceImpl final : public ServiceLayer::Service {
     if (monitor_ok) {
       return Status::OK;
     } else {
+      LOG(INFO) << "Cannot monitor for user: " << request->username();
       return Status(StatusCode::INVALID_ARGUMENT,
                     "Cannot monitor for current user");
     }
@@ -169,6 +189,11 @@ void RunServer() {
 }  // namespace chirpsystem
 
 int main(int argc, char** argv) {
+  FLAGS_log_dir = "./";
+  // FLAGS_alsologtostderr=1;
+  FLAGS_logtostderr = 1;
+  google::InitGoogleLogging(argv[0]);
+  LOG(INFO) << "Service Layer Server started \n";
   chirpsystem::RunServer();
   return 0;
 }

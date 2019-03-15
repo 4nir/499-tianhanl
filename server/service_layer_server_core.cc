@@ -18,6 +18,7 @@ bool ServiceLayerServerCore::RegisterUser(const std::string& username) {
 ServiceLayerServerCore::ChirpStatus ServiceLayerServerCore::SendChirp(
     Chirp& chirp, const std::string& username, const std::string& text,
     const std::string& parent_id) {
+  // TODO(tianahnl): Check parent_id if parent_id is present
   // Prepares chirp
   Timestamp* current_timestamp = MakeCurrentTimestamp();
   chirp.set_username(username);

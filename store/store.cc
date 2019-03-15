@@ -7,7 +7,7 @@ std::optional<std::string> Store::Get(const std::string &key) {
   if (search_result == map_.end()) {
     return std::nullopt;
   } else {
-    return search_result->second;
+    return std::optional<std::string>(search_result->second);
   }
 }
 

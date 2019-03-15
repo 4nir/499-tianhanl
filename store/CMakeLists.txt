@@ -44,6 +44,7 @@ add_executable(key_value_store_server_sync key_value_store_server_sync.cc
 target_link_libraries(key_value_store_server_sync
     ${_GRPC_GRPCPP_UNSECURE}
     ${_PROTOBUF_LIBPROTOBUF}
+    glog::glog
     store)
 
 add_library(key_value_store_client_sync key_value_store_client_sync.cc

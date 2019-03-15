@@ -21,6 +21,7 @@
 #include <optional>
 #include <string>
 
+#include <glog/logging.h>
 #include <grpc/support/log.h>
 #include <grpcpp/grpcpp.h>
 #include "dist/key_value_store.grpc.pb.h"
@@ -52,6 +53,7 @@ class KeyValueStoreServiceImpl final : public KeyValueStore::Service {
              PutReply* reply) override {
     const std::string& key = request->key();
     const std::string& value = request->value();
+    LOG(INFO) << "Received put request for key: " << key << " value: " << value;
     bool ok = store_.Put(key, value);
     if (ok) {
       return Status::OK;
@@ -63,17 +65,19 @@ class KeyValueStoreServiceImpl final : public KeyValueStore::Service {
   // Bidirectional streaming key and value
   Status get(ServerContext* context,
              ServerReaderWriter<GetReply, GetRequest>* stream) override {
+    LOG(INFO) << "Received get request:";
     GetRequest request;
     while (stream->Read(&request)) {
       GetReply reply;
       const std::string& key = request.key();
+      LOG(INFO) << "Getting key: " << key;
       std::optional<std::string> value = store_.Get(key);
       if (value) {
+        LOG(INFO) << "Value for " << key << " is: " << *value;
         reply.set_value(*value);
       } else {
-        Status status(grpc::StatusCode::NOT_FOUND,
-                      "Cannot found value for key " + key);
-        return status;
+        LOG(INFO) << "No value for key " << key;
+        reply.set_value("");
       }
       stream->Write(reply);
     }
@@ -83,6 +87,7 @@ class KeyValueStoreServiceImpl final : public KeyValueStore::Service {
   // Deletes specified keyed item in store if exist.
   Status deletekey(ServerContext* context, const DeleteRequest* request,
                    DeleteReply* reply) override {
+    LOG(INFO) << "Received delete request for key: " << request->key();
     const std::string& key = request->key();
     bool ok = store_.Remove(key);
     if (ok) {
@@ -116,6 +121,12 @@ void RunServer() {
 }  // namespace chirpsystem
 
 int main(int argc, char** argv) {
+  // set up glog
+  FLAGS_log_dir = "./";
+  // FLAGS_alsologtostderr = 1;
+  FLAGS_logtostderr = 1;
+  google::InitGoogleLogging(argv[0]);
+  LOG(INFO) << "Key Value Store Server started \n";
   chirpsystem::RunServer();
   return 0;
 }
