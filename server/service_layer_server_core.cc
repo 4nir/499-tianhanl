@@ -87,6 +87,12 @@ bool ServiceLayerServerCore::Monitor(
   if (username == "" || !store_adapter_.KeyExists(username)) {
     return false;
   }
+
+  // Interval must be >= 0
+  if (interval < 0) {
+    return false;
+  }
+
   // Starts polling
   PollUpdates(username, handle_response, interval, time_limit);
   return true;
@@ -136,22 +142,27 @@ void ServiceLayerServerCore::PollUpdates(
     const std::string& username,
     const std::function<bool(Chirp)>& handle_response, const int interval,
     const int time_limit) {
+  // Guard
+  if (interval < 0) {
+    return;
+  }
   // Mark last_access_seconds, only post younger than it should be sentZ
   int start_time = GetCurrentTime();
   int last_query_seconds = start_time;
+
   // Uses polling to check updates.
   while (true) {
-    // Checks if time limit has been reached
-    if (time_limit != -1 && GetCurrentTime() - start_time >= time_limit) {
-      return;
-    }
     // wait interval seconds
     std::this_thread::sleep_for(std::chrono::seconds(interval));
+
     std::vector<Chirp> chirps =
         GetFollowingChirpsAfterTime(username, last_query_seconds);
+
     // Now `chirps` has all chirps posted after last_query_seconds
     if (chirps.size() > 0) {
+      // Chirps are sorted by creation time to ensure display order
       std::sort(chirps.begin(), chirps.end(), Older);
+
       // Set last_query_seconds to lastest posted chirp's seconds + 1 to avoid
       // duplication
       last_query_seconds = chirps.back().timestamp().seconds() + 1;
@@ -161,6 +172,11 @@ void ServiceLayerServerCore::PollUpdates(
           return;
         }
       }
+    }
+
+    // Checks if time limit has been reached
+    if (time_limit != -1 && GetCurrentTime() - start_time >= time_limit) {
+      return;
     }
   }
 }

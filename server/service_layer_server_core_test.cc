@@ -153,7 +153,7 @@ TEST_F(ServiceLayerServerCoreTest, MonitorShouldWork) {
                                          output_chirp = chirp;
                                          return false;
                                        },
-                                       1, 10);
+                                       0, 0);
   });
   Chirp parent_chirp;
   service_layer_server_core_.SendChirp(parent_chirp, "test5", "hohoho");
@@ -174,6 +174,14 @@ TEST_F(ServiceLayerServerCoreTest, MonitorShouldReturnFalseOnInvalidInput) {
       "unregistered_user", [](Chirp chirp) { return false; });
   EXPECT_FALSE(unregistered_ok);
 }
+
+// `Monitor` should return false for less than 0 interval
+TEST_F(ServiceLayerServerCoreTest, MonitorShouldReturnFalseOnInvalidInterval) {
+  bool zero_ok = service_layer_server_core_.Monitor(
+      "empty_user", [](Chirp chirp) { return false; }, 0);
+  EXPECT_FALSE(zero_ok);
+}
+
 }  // namespace chirpsystem
 
 int main(int argc, char** argv) {

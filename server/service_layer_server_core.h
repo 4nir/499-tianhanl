@@ -59,7 +59,7 @@ class ServiceLayerServerCore {
   username: the user to monitor
   handle_response: callback function that will be called when a new chirp is
   found. If handle_reponse returns false, the polling will be terminated.
-  interval: time in seconds between two polling calls
+  interval: time in seconds between two polling calls, interval must >= 0
   time_limit: Home many senonds after polling starts should monitor end, -1
   means infinite time.
  */
