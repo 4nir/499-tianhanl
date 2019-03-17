@@ -41,7 +41,7 @@ class StoreAdapter {
 
   // Stores serialized `Chirp`, return false indicates given chirp cannot be
   // stored
-  // `chirp` must have a id
+  // `chirp` must have a id, and the id should be unique
   bool StoreChirp(const Chirp& chirp);
 
   // Gets the thread of chirps givien a starting chirp_id. The order of the

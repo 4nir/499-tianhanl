@@ -40,8 +40,8 @@ UserInfo StoreAdapter::GetUserInfo(const std::string& username) {
 }
 
 bool StoreAdapter::StoreChirp(const Chirp& chirp) {
-  // chirp id cannot be empty
-  if (chirp.id() == "") return false;
+  // chirp id must be nonempty and unique
+  if (chirp.id() == "" || KeyExists(chirp.id())) return false;
 
   // If chirp is a reply, store it as reply to its parent
   if (chirp.parent_id() != "") {

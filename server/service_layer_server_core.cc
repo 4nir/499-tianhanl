@@ -18,7 +18,14 @@ bool ServiceLayerServerCore::RegisterUser(const std::string& username) {
 ServiceLayerServerCore::ChirpStatus ServiceLayerServerCore::SendChirp(
     Chirp& chirp, const std::string& username, const std::string& text,
     const std::string& parent_id) {
-  // TODO(tianahnl): Check parent_id if parent_id is present
+  // Check if username is valid
+  if (username == "" || !store_adapter_.KeyExists(username)) {
+    return CHIRP_FAILED;
+  }
+  // If parend_id is present, check wether parent id is valid
+  if (parent_id != "" && !store_adapter_.KeyExists(username)) {
+    return CHIRP_FAILED;
+  }
   // Prepares chirp
   Timestamp* current_timestamp = MakeCurrentTimestamp();
   chirp.set_username(username);
@@ -64,9 +71,14 @@ bool ServiceLayerServerCore::Follow(const std::string& username,
 }
 
 std::vector<Chirp> ServiceLayerServerCore::Read(const std::string id) {
+  // id can not be empty
+  if (id == "") {
+    return std::vector<Chirp>();
+  }
   return store_adapter_.GetChirpThread(id);
 }
 
+// TODO(tianhanl): current implementation is not suitable to test
 bool ServiceLayerServerCore::Monitor(
     const std::string& username,
     const std::function<bool(Chirp)>& handle_response, int interval,

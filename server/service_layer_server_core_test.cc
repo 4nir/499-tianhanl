@@ -20,10 +20,22 @@ class ServiceLayerServerCoreTest : public ::testing::Test {
 TEST_F(ServiceLayerServerCoreTest, RegisterUserShouldWork) {
   // Should be able to register a non-existing user
   EXPECT_TRUE(service_layer_server_core_.RegisterUser("test"));
+}
+
+// `RegisterUser` should fail for empty username
+TEST_F(ServiceLayerServerCoreTest, RegisterUserShouldFailForEmptyUsername) {
   // Username must not be blank
   EXPECT_FALSE(service_layer_server_core_.RegisterUser(""));
+}
+
+// `RegisterUser` should fail for duplicated username
+TEST_F(ServiceLayerServerCoreTest,
+       RegisterUserShouldFailForDuplicatedUsername) {
+  const std::string name_to_duplicate = "aNameToBeDuplicated";
+  EXPECT_TRUE(service_layer_server_core_.RegisterUser(name_to_duplicate));
+  // Username must not be blank
   // Same username cannot be registered twice
-  EXPECT_FALSE(service_layer_server_core_.RegisterUser("test"));
+  EXPECT_FALSE(service_layer_server_core_.RegisterUser(name_to_duplicate));
 }
 
 //  `Follow` should work
@@ -53,7 +65,7 @@ TEST_F(ServiceLayerServerCoreTest, FollowShouldReturnFalseForSelfFollowing) {
   EXPECT_FALSE(service_layer_server_core_.Follow("test4", "invalid_user4"));
 }
 
-// `Chirp` should work
+// `SendChirp` should work for all valid input
 TEST_F(ServiceLayerServerCoreTest, ChirpShouldWork) {
   // A exsting user should be able to chirp
   EXPECT_TRUE(service_layer_server_core_.RegisterUser("test3"));
@@ -65,9 +77,36 @@ TEST_F(ServiceLayerServerCoreTest, ChirpShouldWork) {
 
   // A exsting user should be able to reply
   Chirp reply_chirp;
-  status = service_layer_server_core_.SendChirp(reply_chirp, "test3", "hohoho");
+  status = service_layer_server_core_.SendChirp(reply_chirp, "test3", "hohoho",
+                                                start_chirp.id());
   EXPECT_EQ(ServiceLayerServerCore::CHIRP_SUCCEED, status);
   EXPECT_NE("", reply_chirp.id());
+}
+
+// `SendChirp` should return CHIRP_FAILED when username is invalid
+TEST_F(ServiceLayerServerCoreTest, ChirpShouldFailForInvalidUsername) {
+  // Empty useranme should fail
+  Chirp start_chirp;
+  ServiceLayerServerCore::ChirpStatus status =
+      service_layer_server_core_.SendChirp(start_chirp, "", "hohoho");
+  EXPECT_EQ(ServiceLayerServerCore::CHIRP_FAILED, status);
+
+  // Non-existing username should fail
+  Chirp reply_chirp;
+  status = service_layer_server_core_.SendChirp(
+      reply_chirp, "not existing username", "hohoho");
+  EXPECT_EQ(ServiceLayerServerCore::CHIRP_FAILED, status);
+}
+
+// `SendChirp` should return CHIRP_FAILED for a reply whose parent_id does not
+// exist
+TEST_F(ServiceLayerServerCoreTest, ChirpShouldFailForInvalidParentId) {
+  // Invalid parent_id should fail
+  Chirp start_chirp;
+  ServiceLayerServerCore::ChirpStatus status =
+      service_layer_server_core_.SendChirp(start_chirp, "", "hohoho",
+                                           "aNotExistingId");
+  EXPECT_EQ(ServiceLayerServerCore::CHIRP_FAILED, status);
 }
 
 // `Read` should work
@@ -88,6 +127,16 @@ TEST_F(ServiceLayerServerCoreTest, ReadShouldWork) {
   EXPECT_EQ(2, chirps.size());
   EXPECT_EQ(start_chirp.text(), chirps[0].text());
   EXPECT_EQ(reply_chirp.text(), chirps[1].text());
+}
+
+// `Read` should return empty vector for invalid id
+TEST_F(ServiceLayerServerCoreTest, ReadShouldReturnEmptyVectorForInvalidId) {
+  // Should fail to read a empty id
+  std::vector<Chirp> chirps = service_layer_server_core_.Read("");
+  EXPECT_EQ(0, chirps.size());
+  // Should fail to read a not exisitng id
+  chirps = service_layer_server_core_.Read("aNotExistingId");
+  EXPECT_EQ(0, chirps.size());
 }
 
 // `Monitor` should work

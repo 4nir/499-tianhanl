@@ -29,7 +29,7 @@ Chirp makeChirp(const std::string& username, const std::string& text,
   return chirp;
 }
 
-//  `StoreUserInfo` should store the UserInfo into store server
+//  `StoreUserInfo` should store the UserInfo into `store`
 TEST_F(StoreAdapterTest, StoreFullUserInfoShouldWork) {
   // Stores a fully filled UserInfo should succeed
   UserInfo test_info;
@@ -56,6 +56,7 @@ TEST_F(StoreAdapterTest, StoreEmptyInfoShouldFail) {
   EXPECT_FALSE(store_adapter_.StoreUserInfo(empty_info));
 }
 
+// `GetUserInfo` should work for existing user
 TEST_F(StoreAdapterTest, GetExistingUsernameShouldWork) {
   // Stores a filled UserInfo
   UserInfo test_info;
@@ -72,6 +73,7 @@ TEST_F(StoreAdapterTest, GetExistingUsernameShouldWork) {
   EXPECT_EQ(0, fetched_timestamp->useconds());
 }
 
+// `GetUserInfo` should return empty for not existing user
 TEST_F(StoreAdapterTest, GetInvalidUsernameShouldReturnEmptyUserInfo) {
   EXPECT_EQ("", store_adapter_.GetUserInfo("").username());
   EXPECT_EQ("", store_adapter_.GetUserInfo("not_registered_user").username());
@@ -92,13 +94,21 @@ TEST_F(StoreAdapterTest, StoreChirpShouldWork) {
   EXPECT_EQ(0, fetched_timestamp->useconds());
 }
 
+// `StoreChirp` should return false for existing id
+TEST_F(StoreAdapterTest, StoreDuplicatedChirpShouldFail) {
+  Chirp chirp = makeChirp("test", "test", "0245", "");
+  EXPECT_TRUE(store_adapter_.StoreChirp(chirp));
+  Chirp duplicated_chirp = makeChirp("test", "test", "0245", "");
+  EXPECT_FALSE(store_adapter_.StoreChirp(duplicated_chirp));
+}
+
 // `StoreChirp` should return false for Chirp without id
 TEST_F(StoreAdapterTest, StoreEmptyChirpShouldFail) {
   Chirp invalid_chirp = makeChirp("test", "test", "", "2");
   EXPECT_FALSE(store_adapter_.StoreChirp(invalid_chirp));
 }
 
-// Using `GetChirpThread` should return the thread of chirps
+// Using `GetChirpThread` should return the thread of existing chirps
 TEST_F(StoreAdapterTest, GetExistingChirpThreadShouldSucceed) {
   // Basic Linear Shpae 255->256
   Chirp parent_chirp = makeChirp("test", "parent", "255", "");
