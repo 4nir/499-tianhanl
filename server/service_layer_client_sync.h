@@ -50,7 +50,7 @@ class ServiceLayerClient {
   // Creates a `Chirp`, id and timestamp will be supplied by service layer.
   // Returns the id of the stored chirp.
   // If id is "", the request failed.
-  // parent_id: If this chirp is an reply, parent_id is the id of the chrip it
+  // parent_id: If this chirp is an reply, parent_id is the id of the chirp it
   // is replying to.
   std::string SendChirp(const std::string& username, const std::string& text,
                         const std::string& parent_id = "");

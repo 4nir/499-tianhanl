@@ -111,24 +111,34 @@ int ServiceLayerServerCore::GetCurrentTime() {
   return (duration_cast<seconds>(mark_time)).count();
 }
 
+// Current implementation uses start_time to decide from which chirps should the
+// serach begin and uses seen_ids to filter duplications which helps solving the
+// problem of chirps sent within one second.
 std::vector<Chirp> ServiceLayerServerCore::GetFollowingChirpsAfterTime(
-    const std::string& curr_username, int start_time) {
+    const std::string& curr_username, int start_time,
+    std::unordered_set<std::string>& seen_ids) {
   assert(curr_username != "");
   // Gets latest  user info incase the followings have been updated
   UserInfo curr_user_info = store_adapter_.GetUserInfo(curr_username);
+
   // If the users who current user is following have newer records,
   // store the new chirp to chirps
   std::vector<Chirp> chirps;
+
   for (const std::string& username : curr_user_info.following()) {
     UserInfo user_info = store_adapter_.GetUserInfo(username);
     // If user record has been updated after start_time
     if (user_info.timestamp().seconds() >= start_time) {
-      // Adds chirp posted after mark_time to chirps
+      // Adds chirp posted after mark_time and has not been seen to chirps
       for (int i = user_info.chirp_id_s_size() - 1; i >= 0; i--) {
         Chirp chirp = store_adapter_.GetChirp(user_info.chirp_id_s(i));
-        // If the chirp is posted after mark_seconds, it is a new chirp
-        if (chirp.timestamp().seconds() >= start_time) {
+        const std::string& curr_id = chirp.id();
+        // If the chirp is posted after mark_seconds and has not been inserted
+        // into seen_ids, it is a new chirp
+        if (chirp.timestamp().seconds() >= start_time &&
+            seen_ids.find(curr_id) == seen_ids.end()) {
           chirps.push_back(chirp);
+          seen_ids.insert(curr_id);
         } else {
           break;
         }
@@ -149,6 +159,7 @@ void ServiceLayerServerCore::PollUpdates(
   // Mark last_access_seconds, only post younger than it should be sentZ
   int start_time = GetCurrentTime();
   int last_query_seconds = start_time;
+  std::unordered_set<std::string> seen_ids;
 
   // Uses polling to check updates.
   while (true) {
@@ -156,16 +167,16 @@ void ServiceLayerServerCore::PollUpdates(
     std::this_thread::sleep_for(std::chrono::seconds(interval));
 
     std::vector<Chirp> chirps =
-        GetFollowingChirpsAfterTime(username, last_query_seconds);
+        GetFollowingChirpsAfterTime(username, last_query_seconds, seen_ids);
 
     // Now `chirps` has all chirps posted after last_query_seconds
     if (chirps.size() > 0) {
       // Chirps are sorted by creation time to ensure display order
       std::sort(chirps.begin(), chirps.end(), Older);
 
-      // Set last_query_seconds to lastest posted chirp's seconds + 1 to avoid
+      // Set last_query_seconds to lastest posted chirp's seconds to avoid
       // duplication
-      last_query_seconds = chirps.back().timestamp().seconds() + 1;
+      last_query_seconds = chirps.back().timestamp().seconds();
       for (Chirp chirp : chirps) {
         bool ok = handle_response(chirp);
         if (!ok) {

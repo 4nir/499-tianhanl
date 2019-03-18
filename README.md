@@ -5,7 +5,7 @@ email: tianhanl@usc.edu
 
 ## Project Description
 
-Chrip is a clone of Twiter with storage component, service component, and commandline component using gRPC.
+Chirp is a clone of Twiter with storage component, service component, and commandline component using gRPC.
 
 ## Environment
 
