@@ -78,7 +78,6 @@ std::vector<Chirp> ServiceLayerServerCore::Read(const std::string id) {
   return store_adapter_.GetChirpThread(id);
 }
 
-// TODO(tianhanl): current implementation is not suitable to test
 bool ServiceLayerServerCore::Monitor(
     const std::string& username,
     const std::function<bool(Chirp)>& handle_response, int interval,
