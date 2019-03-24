@@ -45,9 +45,9 @@ ServiceLayerServerCore::ChirpStatus ServiceLayerServerCore::SendChirp(
     } else {
       return UPDATE_USER_FAILED;
     }
-  } else {
-    return CHIRP_FAILED;
   }
+
+  return CHIRP_FAILED;
 }
 
 bool ServiceLayerServerCore::Follow(const std::string& username,
@@ -65,9 +65,9 @@ bool ServiceLayerServerCore::Follow(const std::string& username,
     // update last modified time
     current_user_info.set_allocated_timestamp(MakeCurrentTimestamp());
     return store_adapter_.StoreUserInfo(current_user_info);
-  } else {
-    return false;
   }
+
+  return false;
 }
 
 std::vector<Chirp> ServiceLayerServerCore::Read(const std::string id) {
@@ -185,7 +185,8 @@ void ServiceLayerServerCore::PollUpdates(
     }
 
     // Checks if time limit has been reached
-    if (time_limit != -1 && GetCurrentTime() - start_time >= time_limit) {
+    if (time_limit != kNoTimeLimit &&
+        GetCurrentTime() - start_time >= time_limit) {
       return;
     }
   }

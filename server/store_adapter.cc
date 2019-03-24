@@ -148,7 +148,7 @@ std::vector<std::string> StoreAdapter::GetThreadKeys(
     std::vector<std::string> curr_keys = GetReplyIds(keys[curr_pos]);
     keys.insert(keys.end(), std::make_move_iterator(curr_keys.begin()),
                 std::make_move_iterator(curr_keys.end()));
-    curr_pos += 1;
+    curr_pos++;
   }
   return keys;
 }

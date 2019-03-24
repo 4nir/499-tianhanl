@@ -21,10 +21,16 @@ using grpc::ServerWriter;
 using namespace std::chrono;
 
 namespace chirpsystem {
+// Indicates that there is no time limit for monitoring
+const int kNoTimeLimit = -1;
+
+// Indicates that monitor should poll for every 2 seconds
+const int kDefaultMonitorInterval = 2;
+
 // Manges the creation of internal data strcutre and the interaction with store.
 class ServiceLayerServerCore {
  public:
-  // Initialize store_adapter_
+  // Initializes store_adapter_
   void Init(bool dev = false);
 
   // Registers the given non-blank username
@@ -66,7 +72,8 @@ class ServiceLayerServerCore {
  */
   bool Monitor(const std::string& username,
                const std::function<bool(Chirp)>& handle_response,
-               int interval = 2, int time_limit = -1);
+               int interval = kDefaultMonitorInterval,
+               int time_limit = kNoTimeLimit);
 
  private:
   // Creates a Timestamp object populated with current UNIX timestamp.

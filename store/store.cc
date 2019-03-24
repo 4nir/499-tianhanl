@@ -6,9 +6,9 @@ std::optional<std::string> Store::Get(const std::string &key) {
   auto search_result = map_.find(key);
   if (search_result == map_.end()) {
     return std::nullopt;
-  } else {
-    return std::optional<std::string>(search_result->second);
   }
+
+  return std::optional<std::string>(search_result->second);
 }
 
 bool Store::Put(const std::string &key, const std::string &value) {

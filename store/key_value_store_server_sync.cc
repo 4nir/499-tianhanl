@@ -57,9 +57,9 @@ class KeyValueStoreServiceImpl final : public KeyValueStore::Service {
     bool ok = store_.Put(key, value);
     if (ok) {
       return Status::OK;
-    } else {
-      return Status(StatusCode::INVALID_ARGUMENT, "Unable to put");
     }
+
+    return Status(StatusCode::INVALID_ARGUMENT, "Unable to put");
   }
 
   // Bidirectional streaming key and value
@@ -92,9 +92,8 @@ class KeyValueStoreServiceImpl final : public KeyValueStore::Service {
     bool ok = store_.Remove(key);
     if (ok) {
       return Status::OK;
-    } else {
-      return Status(StatusCode::INVALID_ARGUMENT, "Key is not exist in store");
     }
+    return Status(StatusCode::INVALID_ARGUMENT, "Key is not exist in store");
   }
 
  private:
