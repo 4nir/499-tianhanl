@@ -42,9 +42,9 @@ ServiceLayerServerCore::ChirpStatus ServiceLayerServerCore::SendChirp(
     bool user_ok = store_adapter_.StoreUserInfo(curr_user_info);
     if (user_ok) {
       return CHIRP_SUCCEED;
-    } else {
-      return UPDATE_USER_FAILED;
     }
+
+    return UPDATE_USER_FAILED;
   }
 
   return CHIRP_FAILED;

@@ -11,11 +11,11 @@ Status ServiceLayerServiceImpl::registeruser(ServerContext* context,
   if (ok) {
     LOG(INFO) << "Registered User: " << request->username();
     return Status::OK;
-  } else {
-    LOG(ERROR) << "Cannot register username: " << request->username();
-    return Status(StatusCode::INVALID_ARGUMENT,
-                  "Cannot register username: " + request->username());
   }
+
+  LOG(ERROR) << "Cannot register username: " << request->username();
+  return Status(StatusCode::INVALID_ARGUMENT,
+                "Cannot register username: " + request->username());
 }
 
 // Posts a new chirp (optionally as a reply)
@@ -63,12 +63,11 @@ Status ServiceLayerServiceImpl::follow(ServerContext* context,
                                               request->to_follow());
   if (ok) {
     return Status::OK;
-  } else {
-    LOG(ERROR) << "Cannot complete follow for: " << request->username()
-               << " to follow: " << request->to_follow();
-    return Status(StatusCode::INVALID_ARGUMENT,
-                  "Cannot follow with given input");
   }
+
+  LOG(ERROR) << "Cannot complete follow for: " << request->username()
+             << " to follow: " << request->to_follow();
+  return Status(StatusCode::INVALID_ARGUMENT, "Cannot follow with given input");
 }
 
 // Reads a chirp thread for the given id
@@ -107,13 +106,14 @@ Status ServiceLayerServiceImpl::monitor(ServerContext* context,
         // If stream is closed, terminate thread
         return writer->Write(reply);
       });
+
   if (monitor_ok) {
     return Status::OK;
-  } else {
-    LOG(INFO) << "Cannot monitor for user: " << request->username();
-    return Status(StatusCode::INVALID_ARGUMENT,
-                  "Cannot monitor for current user");
   }
+
+  LOG(INFO) << "Cannot monitor for user: " << request->username();
+  return Status(StatusCode::INVALID_ARGUMENT,
+                "Cannot monitor for current user");
 }
 // Clones the content of chirp into mutable_chirp_pointer
 void ServiceLayerServiceImpl::CloneChirp(const Chirp& chirp,
