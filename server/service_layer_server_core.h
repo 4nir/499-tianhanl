@@ -59,12 +59,13 @@ class ServiceLayerServerCore {
   username: the user to monitor
   handle_response: callback function that will be called when a new chirp is
   found. If handle_reponse returns false, the polling will be terminated.
+  interval: time in seconds between two polling calls
   time_limit: Home many senonds after polling starts should monitor end, -1
   means infinite time.
  */
   bool Monitor(const std::string& username,
                const std::function<bool(Chirp)>& handle_response,
-               int time_limit = -1);
+               int interval = 2, int time_limit = -1);
 
  private:
   // Creates a Timestamp object populated with current UNIX timestamp.
@@ -85,7 +86,7 @@ class ServiceLayerServerCore {
   // suggested to use this function inside a thread.
   void PollUpdates(const std::string& username,
                    const std::function<bool(Chirp)>& handle_response,
-                   const int time_limit);
+                   const int interval, const int time_limit);
 
   // Get new chiprs from users followed by `username` after `time` in
   // seconds
@@ -94,6 +95,8 @@ class ServiceLayerServerCore {
   // the `user_info` has been updated after last polling.
   // 3. If the user has been updated, checks if the user has chirps posted
   // after start_time
+  //
+  // curr_username should not be empty
   std::vector<Chirp> GetFollowingChirpsAfterTime(
       const std::string& curr_username, int start_time);
 

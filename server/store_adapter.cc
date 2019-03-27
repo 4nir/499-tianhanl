@@ -13,12 +13,19 @@ void StoreAdapter::Init(bool dev) {
 }
 
 bool StoreAdapter::StoreUserInfo(const UserInfo& user_info) {
+  // username cannot be empty
+  if (user_info.username() == "") return false;
   std::string serialized_string;
   user_info.SerializeToString(&serialized_string);
   return store_client_->Put(user_info.username(), serialized_string);
 }
 
 UserInfo StoreAdapter::GetUserInfo(const std::string& username) {
+  UserInfo user_info;
+  // username must be not empty
+  if (username == "") {
+    return user_info;
+  }
   // Get serialized UserInfo for the username and store in `serialized_string`
   std::vector<std::string> keys = {username};
   std::string serialized_string;
@@ -26,22 +33,30 @@ UserInfo StoreAdapter::GetUserInfo(const std::string& username) {
     serialized_string = value;
   });
   // Deserialize UserInfo
-  UserInfo user_info;
   user_info.ParseFromString(serialized_string);
   return user_info;
 }
 
 bool StoreAdapter::StoreChirp(const Chirp& chirp) {
+  // chirp id cannot be empty
+  if (chirp.id() == "") return false;
+
   // If chirp is a reply, store it as reply to its parent
   if (chirp.parent_id() != "") {
     StoreReply(chirp.id(), chirp.parent_id());
   }
+
   std::string serialized_string;
   chirp.SerializeToString(&serialized_string);
   return store_client_->Put(chirp.id(), serialized_string);
 }
 
 Chirp StoreAdapter::GetChirp(const std::string& chirp_id) {
+  Chirp chirp;
+  // chirp_id must be not empty
+  if (chirp_id == "") {
+    return chirp;
+  }
   // Get serialized Chirp for the chirp_id and store in `serialized_string`
   std::vector<std::string> keys = {chirp_id};
   std::string serialized_string;
@@ -49,15 +64,23 @@ Chirp StoreAdapter::GetChirp(const std::string& chirp_id) {
     serialized_string = value;
   });
   // Deserialize Chirp
-  Chirp chirp;
   chirp.ParseFromString(serialized_string);
   return chirp;
+}
+
+bool StoreAdapter::CheckDoesKeyExist(const std::string& key) {
+  std::string result = "";
+  std::vector<std::string> keys = {key};
+  store_client_->Get(keys, [&result](std::string value) { result = value; });
+  return result != "";
 }
 
 std::vector<Chirp> StoreAdapter::GetChirpThread(const std::string& chirp_id) {
   std::vector<Chirp> chirps;
   std::vector<std::string> keys = GetThreadKeys(chirp_id);
   store_client_->Get(keys, [&chirps](std::string value) {
+    // If value is empty means that the chirp with this id is not existing.
+    if (value == "") return;
     Chirp chirp;
     chirp.ParseFromString(value);
     chirps.push_back(chirp);
@@ -102,12 +125,11 @@ bool StoreAdapter::StoreReply(const std::string& curr_id,
 
   // Create a empty ReplyRecord
   ReplyRecord reply_record;
-  reply_record.set_id(parent_id);
-
   // If previous record exists, restores its data
   if (serialized_string != "") {
     reply_record.ParseFromString(serialized_string);
   }
+  reply_record.set_id(parent_id);
   reply_record.add_reply_ids(curr_id);
 
   // Store updated ReplyRecord

@@ -18,6 +18,8 @@ using chirp::UserInfo;
 // Handles the serialization/deserialization of messags and the interaction with
 // store server. In current implementation, each `Store` method will fully
 // replace previous stored value.
+// TODO: Change mthod return to make it easier to find what is the cause of
+// errors
 class StoreAdapter {
  public:
   // Initialize store_client_, should be called before all Get*/Store* methods
@@ -28,12 +30,16 @@ class StoreAdapter {
   void Init(bool dev = false);
 
   // Stores serialized `UserInfo`. Returns true if succeed.
+  // `user_info` must have a username
   bool StoreUserInfo(const UserInfo& user_info);
 
-  // Gets `UserInfo` associated with the username
+  // Gets `UserInfo` associated with the username, return `UserInfo` has emtpy
+  // username if username is not registerd.
   UserInfo GetUserInfo(const std::string& username);
 
-  // Stores serialized `Chirp`
+  // Stores serialized `Chirp`, return false indicates given chirp cannot be
+  // stored
+  // `chirp` must have a id
   bool StoreChirp(const Chirp& chirp);
 
   // Gets the thread of chirps givien a starting chirp_id. The order of the
@@ -43,6 +49,9 @@ class StoreAdapter {
 
   //  Gets the chirp for a given chirp_id
   Chirp GetChirp(const std::string& chirp_id);
+
+  // Checks is a key already existed in the store, return true if it is existed
+  bool CheckDoesKeyExist(const std::string& key);
 
  private:
   // Gets the IDs of replies to `curr_id` chirp

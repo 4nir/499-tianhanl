@@ -54,6 +54,11 @@ target_link_libraries(key_value_store_client_sync
     ${_GRPC_GRPCPP_UNSECURE}
     ${_PROTOBUF_LIBPROTOBUF})
 
+add_library(dev_key_value_store_client_sync dev_key_value_store_client_sync.cc
+    ${key_value_store_client_interface_hdrs})
+target_link_libraries(dev_key_value_store_client_sync
+    store)
+
 add_executable(key_value_store_client_sync_test key_value_store_client_sync_test.cc)
 target_link_libraries(key_value_store_client_sync_test PUBLIC
     gtest
@@ -61,8 +66,7 @@ target_link_libraries(key_value_store_client_sync_test PUBLIC
     key_value_store_client_sync
 )
 
-add_library(dev_key_value_store_client_sync dev_key_value_store_client_sync.cc
-    ${key_value_store_client_interface_hdrs})
-target_link_libraries(dev_key_value_store_client_sync
-    store)
-
+# add_test(
+#     NAME key_value_store_client_sync_test
+#     COMMAND key_value_store_client_sync_test
+# )
