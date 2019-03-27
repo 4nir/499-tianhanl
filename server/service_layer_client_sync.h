@@ -6,13 +6,12 @@
 #include <string>
 #include <vector>
 
-#include "./dist/service_layer.grpc.pb.h"
-
 #include <grpc/grpc.h>
 #include <grpcpp/channel.h>
 #include <grpcpp/client_context.h>
 #include <grpcpp/create_channel.h>
 #include <grpcpp/security/credentials.h>
+#include "./dist/service_layer.grpc.pb.h"
 
 using chirp::Chirp;
 using chirp::ChirpReply;

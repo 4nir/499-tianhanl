@@ -1,9 +1,11 @@
-#include <gflags/gflags.h>
-#include <glog/logging.h>
+#include "command_client_core.h"
+
 #include <iostream>
 #include <memory>
 #include <string>
-#include "command_client_core.h"
+
+#include <gflags/gflags.h>
+#include <glog/logging.h>
 
 using std::cout;
 using std::endl;

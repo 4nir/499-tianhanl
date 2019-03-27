@@ -1,7 +1,9 @@
 #include "key_value_store_client_sync.h"
-#include <gtest/gtest.h>
+
 #include <string>
 #include <vector>
+
+#include <gtest/gtest.h>
 
 class KeyValueStoreClientSyncTest : public ::testing::Test {
  protected:

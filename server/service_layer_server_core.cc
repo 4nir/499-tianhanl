@@ -1,4 +1,4 @@
-#include "./service_layer_server_core.h"
+#include "service_layer_server_core.h"
 
 void ServiceLayerServerCore::Init(bool dev) { store_adapter_.Init(dev); }
 
@@ -6,7 +6,7 @@ bool ServiceLayerServerCore::RegisterUser(const std::string& username) {
   // username cannot be empty
   if (username == "") return false;
   // username must be unique
-  if (store_adapter_.CheckDoesKeyExist(username)) return false;
+  if (store_adapter_.KeyExists(username)) return false;
   UserInfo new_user_info;
   new_user_info.set_username(username);
   // Ownership of timestamp pointer is transferred to new_user_info
@@ -70,14 +70,11 @@ bool ServiceLayerServerCore::Monitor(
     const std::function<bool(Chirp)>& handle_response, int interval,
     int time_limit) {
   // Cannot monitor for a not registered user
-  if (username == "" || !store_adapter_.CheckDoesKeyExist(username)) {
+  if (username == "" || !store_adapter_.KeyExists(username)) {
     return false;
   }
   // Starts polling
-  std::thread polling(&ServiceLayerServerCore::PollUpdates, this, username,
-                      handle_response, interval, time_limit);
-  // Wait for monitoring to end
-  polling.join();
+  PollUpdates(username, handle_response, interval, time_limit);
   return true;
 }
 
@@ -134,7 +131,7 @@ void ServiceLayerServerCore::PollUpdates(
     if (time_limit != -1 && GetCurrentTime() - start_time >= time_limit) {
       return;
     }
-    // wait 2 seconds
+    // wait interval seconds
     std::this_thread::sleep_for(std::chrono::seconds(interval));
     std::vector<Chirp> chirps =
         GetFollowingChirpsAfterTime(username, last_query_seconds);

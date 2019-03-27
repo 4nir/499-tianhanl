@@ -1,9 +1,11 @@
 #include "store_adapter.h"
-#include <gtest/gtest.h>
+
 #include <iostream>
 #include <memory>
 #include <string>
 #include <vector>
+
+#include <gtest/gtest.h>
 
 class StoreAdapterTest : public ::testing::Test {
  protected:
@@ -27,7 +29,7 @@ Chirp makeChirp(const std::string& username, const std::string& text,
 }
 
 //  `StoreUserInfo` should store the UserInfo into store server
-TEST_F(StoreAdapterTest, StoreFullserInfoShouldWork) {
+TEST_F(StoreAdapterTest, StoreFullUserInfoShouldWork) {
   // Stores a fully filled UserInfo should succeed
   UserInfo test_info;
   test_info.set_username("test");

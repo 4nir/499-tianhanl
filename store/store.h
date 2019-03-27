@@ -2,6 +2,7 @@
 #define STORE
 
 #include <mutex>
+#include <optional>
 #include <string>
 #include <unordered_map>
 
@@ -9,8 +10,8 @@
 // are guarded via mutex.
 class Store {
  public:
-  // returns empty string if specific keyed item is not exist
-  std::string Get(const std::string &key);
+  // returns `std::nullopt` if specific keyed item is not exist
+  std::optional<std::string> Get(const std::string &key);
 
   // returns false when the key and value cannot be put into map_
   bool Put(const std::string &key, const std::string &value);

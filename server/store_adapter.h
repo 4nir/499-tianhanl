@@ -1,14 +1,15 @@
 #ifndef STORE_ADAPTER
 #define STORE_ADAPTER
-#include "../store/dev_key_value_store_client_sync.h"
-#include "../store/key_value_store_client_sync.h"
-#include "./dist/service_layer.pb.h"
 
 #include <memory>
 #include <mutex>
 #include <string>
 #include <unordered_map>
 #include <vector>
+
+#include "../store/dev_key_value_store_client_sync.h"
+#include "../store/key_value_store_client_sync.h"
+#include "dist/service_layer.pb.h"
 
 using chirp::Chirp;
 using chirp::ReplyRecord;
@@ -51,7 +52,7 @@ class StoreAdapter {
   Chirp GetChirp(const std::string& chirp_id);
 
   // Checks is a key already existed in the store, return true if it is existed
-  bool CheckDoesKeyExist(const std::string& key);
+  bool KeyExists(const std::string& key);
 
  private:
   // Gets the IDs of replies to `curr_id` chirp

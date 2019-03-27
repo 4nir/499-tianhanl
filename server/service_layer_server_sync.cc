@@ -1,3 +1,5 @@
+#include "service_layer_server_core.h"
+
 #include <algorithm>
 #include <chrono>
 #include <iostream>
@@ -6,11 +8,9 @@
 #include <thread>
 #include <vector>
 
-#include "./dist/service_layer.grpc.pb.h"
-#include "service_layer_server_core.h"
-
 #include <grpc/support/log.h>
 #include <grpcpp/grpcpp.h>
+#include "dist/service_layer.grpc.pb.h"
 
 using chirp::Chirp;
 using chirp::ChirpReply;
@@ -133,7 +133,7 @@ class ServiceLayerServiceImpl final : public ServiceLayer::Service {
 
  private:
   // Clones the content of chirp into mutable_chirp_pointer
-  void CloneChirp(Chirp chirp, Chirp* mutable_chirp) {
+  void CloneChirp(const Chirp& chirp, Chirp* mutable_chirp) {
     Timestamp* timestamp = new Timestamp;
     timestamp->set_seconds(chirp.timestamp().seconds());
     timestamp->set_useconds(chirp.timestamp().useconds());

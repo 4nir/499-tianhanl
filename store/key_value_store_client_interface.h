@@ -1,5 +1,6 @@
 #ifndef KEY_VALUE_STORE_CLIENT_INTERFACE
 #define KEY_VALUE_STORE_CLIENT_INTERFACE
+
 #include <functional>
 #include <iostream>
 #include <string>

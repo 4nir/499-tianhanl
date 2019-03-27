@@ -1,8 +1,10 @@
 #include "service_layer_client_sync.h"
-#include <gtest/gtest.h>
+
 #include <memory>
 #include <string>
 #include <vector>
+
+#include <gtest/gtest.h>
 
 class ServiceLayerClientTest : public ::testing::Test {
  protected:

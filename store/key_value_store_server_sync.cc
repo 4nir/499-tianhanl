@@ -18,13 +18,13 @@
 
 #include <iostream>
 #include <memory>
+#include <optional>
 #include <string>
-
-#include "./dist/key_value_store.grpc.pb.h"
-#include "store.h"
 
 #include <grpc/support/log.h>
 #include <grpcpp/grpcpp.h>
+#include "dist/key_value_store.grpc.pb.h"
+#include "store.h"
 
 using chirp::DeleteReply;
 using chirp::DeleteRequest;
@@ -44,9 +44,6 @@ const std::string STORE_SERVER_ADDRESS("0.0.0.0:50000");
 
 class KeyValueStoreServiceImpl final : public KeyValueStore::Service {
  public:
-  KeyValueStoreServiceImpl() { store_ = new Store; }
-  ~KeyValueStoreServiceImpl() { delete store_; }
-
   // Stores key and value specified in request, return
   // `StatusCode::INVALID_ARGUMENT` when supplied key and value cannot be
   // stored.
@@ -54,7 +51,7 @@ class KeyValueStoreServiceImpl final : public KeyValueStore::Service {
              PutReply* reply) override {
     const std::string& key = request->key();
     const std::string& value = request->value();
-    bool ok = store_->Put(key, value);
+    bool ok = store_.Put(key, value);
     if (ok) {
       return Status::OK;
     } else {
@@ -67,10 +64,16 @@ class KeyValueStoreServiceImpl final : public KeyValueStore::Service {
              ServerReaderWriter<GetReply, GetRequest>* stream) override {
     GetRequest request;
     while (stream->Read(&request)) {
-      const std::string& key = request.key();
-      const std::string& value = store_->Get(key);
       GetReply reply;
-      reply.set_value(value);
+      const std::string& key = request.key();
+      std::optional<std::string> value = store_.Get(key);
+      if (value) {
+        reply.set_value(*value);
+      } else {
+        Status status(grpc::StatusCode::NOT_FOUND,
+                      "Cannot found value for key " + key);
+        return status;
+      }
       stream->Write(reply);
     }
     return Status::OK;
@@ -80,7 +83,7 @@ class KeyValueStoreServiceImpl final : public KeyValueStore::Service {
   Status deletekey(ServerContext* context, const DeleteRequest* request,
                    DeleteReply* reply) override {
     const std::string& key = request->key();
-    bool ok = store_->Remove(key);
+    bool ok = store_.Remove(key);
     if (ok) {
       return Status::OK;
     } else {
@@ -90,7 +93,7 @@ class KeyValueStoreServiceImpl final : public KeyValueStore::Service {
 
  private:
   // Store instance used to store key value pairs
-  Store* store_;
+  Store store_;
 };
 
 void RunServer() {

@@ -11,7 +11,7 @@ bool DevKeyValueStoreClient::Get(
     const std::vector<std::string>& keys,
     const std::function<void(std::string)>& handle_response) {
   for (const std::string& key : keys) {
-    handle_response(store_.Get(key));
+    handle_response(store_.Get(key).value_or(""));
   }
   return true;
 }

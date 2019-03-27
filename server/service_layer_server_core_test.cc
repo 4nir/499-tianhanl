@@ -1,9 +1,11 @@
-#include "./service_layer_server_core.h"
-#include <gtest/gtest.h>
+#include "service_layer_server_core.h"
+
 #include <iostream>
 #include <string>
 #include <thread>
 #include <vector>
+
+#include <gtest/gtest.h>
 
 // TODO: Add tests for error cases
 

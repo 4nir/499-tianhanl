@@ -113,7 +113,7 @@ Unittesting have been register with `ctest`, and you can run all of them via:
 make test
 ```
 
-`*_client_sync_test.cc` is mean to be integration test which requires a running server inatnace
+`*_client_sync_test.cc` is mean to be integration test which requires a running server instance
 
 ```bash
 # start store server
