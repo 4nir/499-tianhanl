@@ -5,6 +5,7 @@
 
 #include <gtest/gtest.h>
 
+namespace chirpsystem {
 class KeyValueStoreClientSyncTest : public ::testing::Test {
  protected:
   void SetUp() override { client.Init(); }
@@ -39,6 +40,7 @@ TEST_F(KeyValueStoreClientSyncTest, DeleteKeyShouldRemoveItemForKey) {
   client.Get(keys, [&result](std::string value) { result = value; });
   EXPECT_EQ("", result);
 }
+}  // namespace chirpsystem
 
 int main(int argc, char **argv) {
   ::testing::InitGoogleTest(&argc, argv);

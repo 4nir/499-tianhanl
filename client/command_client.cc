@@ -23,7 +23,7 @@ int main(int argc, char** argv) {
   // Start gflags and glog
   gflags::ParseCommandLineFlags(&argc, &argv, true);
   google::InitGoogleLogging(argv[0]);
-  CommandClientCore command_client_core;
+  chirpsystem::CommandClientCore command_client_core;
   command_client_core.Run(FLAGS_register, FLAGS_user, FLAGS_chirp, FLAGS_reply,
                           FLAGS_follow, FLAGS_read, FLAGS_monitor);
 }

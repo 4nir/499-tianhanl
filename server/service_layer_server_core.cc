@@ -1,5 +1,6 @@
 #include "service_layer_server_core.h"
 
+namespace chirpsystem {
 void ServiceLayerServerCore::Init(bool dev) { store_adapter_.Init(dev); }
 
 bool ServiceLayerServerCore::RegisterUser(const std::string& username) {
@@ -150,3 +151,4 @@ void ServiceLayerServerCore::PollUpdates(
     }
   }
 }
+}  // namespace chirpsystem

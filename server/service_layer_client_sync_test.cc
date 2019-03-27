@@ -6,6 +6,7 @@
 
 #include <gtest/gtest.h>
 
+namespace chirpsystem {
 class ServiceLayerClientTest : public ::testing::Test {
  protected:
   void SetUp() override { service_layer_client_.Init(); }
@@ -42,7 +43,7 @@ TEST_F(ServiceLayerClientTest, ReadChirpShouldWork) {
   ASSERT_NE(0, chirps.size());
   EXPECT_EQ("test content", chirps[0].text());
 }
-
+}  // namespace chirpsystem
 int main(int argc, char** argv) {
   ::testing::InitGoogleTest(&argc, argv);
   return RUN_ALL_TESTS();

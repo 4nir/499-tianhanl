@@ -19,6 +19,7 @@ using chirp::UserInfo;
 using grpc::ServerWriter;
 using namespace std::chrono;
 
+namespace chirpsystem {
 // Manges the creation of internal data strcutre and the interaction with store.
 class ServiceLayerServerCore {
  public:
@@ -102,3 +103,4 @@ class ServiceLayerServerCore {
   //  Interface to communicate with store server
   StoreAdapter store_adapter_;
 };
+}  // namespace chirpsystem

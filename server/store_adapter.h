@@ -16,6 +16,7 @@ using chirp::ReplyRecord;
 using chirp::Timestamp;
 using chirp::UserInfo;
 
+namespace chirpsystem {
 // Handles the serialization/deserialization of messags and the interaction with
 // store server. In current implementation, each `Store` method will fully
 // replace previous stored value.
@@ -71,5 +72,6 @@ class StoreAdapter {
   // client interface used to communicate with store server
   std::unique_ptr<KeyValueStoreClientInterface> store_client_;
 };
+}  // namespace chirpsystem
 
 #endif

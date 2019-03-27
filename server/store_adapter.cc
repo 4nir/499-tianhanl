@@ -2,6 +2,7 @@
 
 #include <iterator>
 
+namespace chirpsystem {
 void StoreAdapter::Init(bool dev) {
   if (dev) {
     store_client_ =
@@ -151,3 +152,4 @@ std::vector<std::string> StoreAdapter::GetThreadKeys(
   }
   return keys;
 }
+}  // namespace chirpsystem

@@ -1,5 +1,6 @@
 #include "key_value_store_client_sync.h"
 
+namespace chirpsystem {
 void KeyValueStoreClient::Init() {
   this->stub_ = KeyValueStore::NewStub(grpc::CreateChannel(
       STORE_SERVER_ADDRESS, grpc::InsecureChannelCredentials()));
@@ -70,3 +71,4 @@ GetRequest KeyValueStoreClient::MakeGetRequest(const std::string& key) {
   request.set_key(key);
   return request;
 }
+}  // namespace chirpsystem

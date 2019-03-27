@@ -1,8 +1,9 @@
 #include "service_layer_client_sync.h"
 
+namespace chirpsystem {
 void ServiceLayerClient::Init() {
   this->stub_ = ServiceLayer::NewStub(grpc::CreateChannel(
-      SERVICE_SERVER_ADDRESS, grpc::InsecureChannelCredentials()));
+      kSERVICE_SERVER_ADDRESS, grpc::InsecureChannelCredentials()));
 }
 
 bool ServiceLayerClient::RegisterUser(const std::string& username) {
@@ -72,3 +73,4 @@ bool ServiceLayerClient::Monitor(const std::string& username,
   Status status = reader->Finish();
   return status.ok();
 }
+}  // namespace chirpsystem

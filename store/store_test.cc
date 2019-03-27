@@ -2,6 +2,7 @@
 
 #include <gtest/gtest.h>
 
+namespace chirpsystem {
 TEST(StoreTest, GetShouldReturnEmptyStringIfKeyDoesNotExist) {
   Store store;
   // Since store is initially empty, "test" key is not exist. Get("test") should
@@ -41,6 +42,7 @@ TEST(StoreTest, RemoveShouldRemoveCorrespondingValueWhenKeyExist) {
   // find the key and return empty string.
   EXPECT_FALSE(store.Get("test").has_value());
 }
+}  // namespace chirpsystem
 
 int main(int argc, char **argv) {
   ::testing::InitGoogleTest(&argc, argv);
