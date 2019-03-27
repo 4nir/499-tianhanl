@@ -149,8 +149,7 @@ void RunServer() {
 
 int main(int argc, char** argv) {
   FLAGS_log_dir = "./";
-  // FLAGS_alsologtostderr=1;
-  FLAGS_logtostderr = 1;
+  FLAGS_alsologtostderr = 2;
   google::InitGoogleLogging(argv[0]);
   LOG(INFO) << "Service Layer Server started \n";
   chirpsystem::RunServer();

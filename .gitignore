@@ -69,3 +69,5 @@ command_client
 .vagrant
 service_layer_server_sync.INFO
 .INFO
+*.ERROR
+*.WARNING

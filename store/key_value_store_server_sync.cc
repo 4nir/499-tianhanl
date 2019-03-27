@@ -15,91 +15,56 @@
  * limitations under the License.
  *
  */
-
-#include <iostream>
-#include <memory>
-#include <optional>
-#include <string>
-
-#include <glog/logging.h>
-#include <grpc/support/log.h>
-#include <grpcpp/grpcpp.h>
-#include "dist/key_value_store.grpc.pb.h"
-#include "store.h"
-
-using chirp::DeleteReply;
-using chirp::DeleteRequest;
-using chirp::GetReply;
-using chirp::GetRequest;
-using chirp::KeyValueStore;
-using chirp::PutReply;
-using chirp::PutRequest;
-using grpc::Server;
-using grpc::ServerBuilder;
-using grpc::ServerContext;
-using grpc::ServerReaderWriter;
-using grpc::Status;
-using grpc::StatusCode;
+#include "key_value_store_server_sync.h"
 
 namespace chirpsystem {
-const std::string kSTORE_SERVER_ADDRESS("0.0.0.0:50000");
 
-class KeyValueStoreServiceImpl final : public KeyValueStore::Service {
- public:
-  // Stores key and value specified in request, return
-  // `StatusCode::INVALID_ARGUMENT` when supplied key and value cannot be
-  // stored.
-  Status put(ServerContext* context, const PutRequest* request,
-             PutReply* reply) override {
-    const std::string& key = request->key();
-    const std::string& value = request->value();
-    LOG(INFO) << "Received put request for key: " << key << " value: " << value;
-    bool ok = store_.Put(key, value);
-    if (ok) {
-      return Status::OK;
-    }
-
-    return Status(StatusCode::INVALID_ARGUMENT, "Unable to put");
-  }
-
-  // Bidirectional streaming key and value
-  Status get(ServerContext* context,
-             ServerReaderWriter<GetReply, GetRequest>* stream) override {
-    LOG(INFO) << "Received get request:";
-    GetRequest request;
-    while (stream->Read(&request)) {
-      GetReply reply;
-      const std::string& key = request.key();
-      LOG(INFO) << "Getting key: " << key;
-      std::optional<std::string> value = store_.Get(key);
-      if (value) {
-        LOG(INFO) << "Value for " << key << " is: " << *value;
-        reply.set_value(*value);
-      } else {
-        LOG(INFO) << "No value for key " << key;
-        reply.set_value("");
-      }
-      stream->Write(reply);
-    }
+Status KeyValueStoreServiceImpl::put(ServerContext* context,
+                                     const PutRequest* request,
+                                     PutReply* reply) {
+  const std::string& key = request->key();
+  const std::string& value = request->value();
+  LOG(INFO) << "Received put request for key: " << key << " value: " << value;
+  bool ok = store_.Put(key, value);
+  if (ok) {
     return Status::OK;
   }
 
-  // Deletes specified keyed item in store if exist.
-  Status deletekey(ServerContext* context, const DeleteRequest* request,
-                   DeleteReply* reply) override {
-    LOG(INFO) << "Received delete request for key: " << request->key();
-    const std::string& key = request->key();
-    bool ok = store_.Remove(key);
-    if (ok) {
-      return Status::OK;
-    }
-    return Status(StatusCode::INVALID_ARGUMENT, "Key is not exist in store");
-  }
+  return Status(StatusCode::INVALID_ARGUMENT, "Unable to put");
+}
 
- private:
-  // Store instance used to store key value pairs
-  Store store_;
-};
+Status KeyValueStoreServiceImpl::get(
+    ServerContext* context, ServerReaderWriter<GetReply, GetRequest>* stream) {
+  LOG(INFO) << "Received get request:";
+  GetRequest request;
+  while (stream->Read(&request)) {
+    GetReply reply;
+    const std::string& key = request.key();
+    LOG(INFO) << "Getting key: " << key;
+    std::optional<std::string> value = store_.Get(key);
+    if (value) {
+      LOG(INFO) << "Value for " << key << " is: " << *value;
+      reply.set_value(*value);
+    } else {
+      LOG(INFO) << "No value for key " << key;
+      reply.set_value("");
+    }
+    stream->Write(reply);
+  }
+  return Status::OK;
+}
+
+Status KeyValueStoreServiceImpl::deletekey(ServerContext* context,
+                                           const DeleteRequest* request,
+                                           DeleteReply* reply) {
+  LOG(INFO) << "Received delete request for key: " << request->key();
+  const std::string& key = request->key();
+  bool ok = store_.Remove(key);
+  if (ok) {
+    return Status::OK;
+  }
+  return Status(StatusCode::INVALID_ARGUMENT, "Key is not exist in store");
+}
 
 void RunServer() {
   KeyValueStoreServiceImpl service;
@@ -122,8 +87,7 @@ void RunServer() {
 int main(int argc, char** argv) {
   // set up glog
   FLAGS_log_dir = "./";
-  // FLAGS_alsologtostderr = 1;
-  FLAGS_logtostderr = 1;
+  FLAGS_alsologtostderr = 2;
   google::InitGoogleLogging(argv[0]);
   LOG(INFO) << "Key Value Store Server started \n";
   chirpsystem::RunServer();

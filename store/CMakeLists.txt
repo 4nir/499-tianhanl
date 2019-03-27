@@ -39,6 +39,7 @@ add_test(
 )
 
 add_executable(key_value_store_server_sync key_value_store_server_sync.cc
+    key_value_store_server_sync.h
     ${store_proto_srcs}
     ${store_grpc_srcs})
 target_link_libraries(key_value_store_server_sync
