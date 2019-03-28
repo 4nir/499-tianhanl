@@ -38,9 +38,9 @@ std::string ServiceLayerClient::SendChirp(const std::string& username,
   Status status = stub_->chirp(&context, request, &reply);
   if (status.ok()) {
     return reply.chirp().id();
-  } else {
-    return "";
   }
+
+  return "";
 }
 
 std::vector<Chirp> ServiceLayerClient::Read(const std::string& chirp_id) {

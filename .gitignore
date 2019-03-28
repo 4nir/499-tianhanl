@@ -60,8 +60,14 @@ service_layer_server_core_test
 Testing/
 command_client_core_test
 *.log
-
+*.log.*
+key_value_store_server_sync.INFO
 third_party/*
 .vscode
 
 command_client
+.vagrant
+service_layer_server_sync.INFO
+.INFO
+*.ERROR
+*.WARNING

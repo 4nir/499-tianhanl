@@ -69,12 +69,15 @@ add_test(
 )
 
 add_executable(service_layer_server_sync service_layer_server_sync.cc
+service_layer_server_sync.h
 ${service_layer_proto_srcs}
-${service_layer_grpc_srcs})
+${service_layer_grpc_srcs}
+)
 
 target_link_libraries(service_layer_server_sync
 ${_GRPC_GRPCPP_UNSECURE}
 ${_PROTOBUF_LIBPROTOBUF}
+glog::glog
 service_layer_server_core)
 
 add_library(service_layer_client_sync service_layer_client_sync.cc

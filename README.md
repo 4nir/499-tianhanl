@@ -5,7 +5,7 @@ email: tianhanl@usc.edu
 
 ## Project Description
 
-Chrip is a clone of Twiter with storage component, service component, and commandline component using gRPC.
+Chirp is a clone of Twiter with storage component, service component, and commandline component using gRPC.
 
 ## Environment
 
@@ -121,3 +121,27 @@ make test
 # run store client test
 
 ```
+
+Testings for client is intentionally left because its only outputs are through
+`std::count`.
+
+## File Structure
+
+### Client
+
+- command_client_core - implements of the logic of client
+- command_client - contains main function accepting user interactions
+
+#### Server
+
+- service_layer_client_sync - interface for interactive with server layer server
+- service_layer_server_sync - contains main function accepting messages
+- service_layer_server_core - implements the logic of service layer server
+- store_adapter - abstracts the interactions with store implementation
+
+#### Store
+
+- dev_key_value_store_client - implements store client interface directly using `store`
+- key_value_store_client_sync - interface for interactinos with store server
+- key_value_store_server_sync - contains main function accepting messages
+- store - implements thread-safe store

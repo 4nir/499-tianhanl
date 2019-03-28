@@ -18,11 +18,43 @@ TEST_F(ServiceLayerClientTest, RegisteruserShouldWork) {
   EXPECT_TRUE(service_layer_client_.RegisterUser("test"));
 }
 
+// Register empty user should fail
+TEST_F(ServiceLayerClientTest, RegisterEmptyUserShouldFail) {
+  EXPECT_FALSE(service_layer_client_.RegisterUser(""));
+}
+
+// Register existing user should fail
+TEST_F(ServiceLayerClientTest, RegisterExistingUserShouldFail) {
+  EXPECT_TRUE(service_layer_client_.RegisterUser("aUniqueName"));
+  EXPECT_FALSE(service_layer_client_.RegisterUser("aUniqueName"));
+}
+
 // Follow a existing user should succeed
 TEST_F(ServiceLayerClientTest, FollowShouldWork) {
   ASSERT_TRUE(service_layer_client_.RegisterUser("test2"));
   ASSERT_TRUE(service_layer_client_.RegisterUser("test1"));
   EXPECT_TRUE(service_layer_client_.Follow("test2", "test1"));
+}
+
+// Follow a not existing user should fail
+TEST_F(ServiceLayerClientTest, FollowNotExistingUserShoudFail) {
+  ASSERT_TRUE(service_layer_client_.RegisterUser("followTest3"));
+  EXPECT_FALSE(
+      service_layer_client_.Follow("followTest3", "not existing user"));
+}
+
+// Using a not existing user to follow should fail
+TEST_F(ServiceLayerClientTest, UsingNotExistingUserToFollowShouldFail) {
+  ASSERT_TRUE(service_layer_client_.RegisterUser("followTest4"));
+  EXPECT_FALSE(
+      service_layer_client_.Follow("not existing user", "followTest4"));
+}
+
+// Using not exsitng user to follow not existng user should fail
+TEST_F(ServiceLayerClientTest,
+       UsingNotExistingUserToFollowNotExistingUserShouldFail) {
+  EXPECT_FALSE(
+      service_layer_client_.Follow("not existing user", "not existing usesr2"));
 }
 
 // Create a chirp should succeed

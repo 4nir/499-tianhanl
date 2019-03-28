@@ -6,6 +6,7 @@
 #include <memory>
 #include <string>
 #include <thread>
+#include <unordered_set>
 #include <vector>
 
 #include <grpc/support/log.h>
@@ -20,10 +21,16 @@ using grpc::ServerWriter;
 using namespace std::chrono;
 
 namespace chirpsystem {
+// Indicates that there is no time limit for monitoring
+const int kNoTimeLimit = -1;
+
+// Indicates that monitor should poll for every 2 seconds
+const int kDefaultMonitorInterval = 2;
+
 // Manges the creation of internal data strcutre and the interaction with store.
 class ServiceLayerServerCore {
  public:
-  // Initialize store_adapter_
+  // Initializes store_adapter_
   void Init(bool dev = false);
 
   // Registers the given non-blank username
@@ -59,13 +66,14 @@ class ServiceLayerServerCore {
   username: the user to monitor
   handle_response: callback function that will be called when a new chirp is
   found. If handle_reponse returns false, the polling will be terminated.
-  interval: time in seconds between two polling calls
+  interval: time in seconds between two polling calls, interval must >= 0
   time_limit: Home many senonds after polling starts should monitor end, -1
   means infinite time.
  */
   bool Monitor(const std::string& username,
                const std::function<bool(Chirp)>& handle_response,
-               int interval = 2, int time_limit = -1);
+               int interval = kDefaultMonitorInterval,
+               int time_limit = kNoTimeLimit);
 
  private:
   // Creates a Timestamp object populated with current UNIX timestamp.
@@ -93,12 +101,14 @@ class ServiceLayerServerCore {
   // 1. Check following users' timestamps which indicate their update times.
   // 2. If a following `user_info` has a timestamp larger than mark time,
   // the `user_info` has been updated after last polling.
-  // 3. If the user has been updated, checks if the user has chirps posted
+  // 3. If the user has been updated, checks if the user has new chirps posted
   // after start_time
   //
-  // curr_username should not be empty
+  // `curr_username` should not be empty
+  // This function will modify seen_ids
   std::vector<Chirp> GetFollowingChirpsAfterTime(
-      const std::string& curr_username, int start_time);
+      const std::string& curr_username, int start_time,
+      std::unordered_set<std::string>& seen_ids);
 
   //  Interface to communicate with store server
   StoreAdapter store_adapter_;

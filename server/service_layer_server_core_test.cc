@@ -20,10 +20,22 @@ class ServiceLayerServerCoreTest : public ::testing::Test {
 TEST_F(ServiceLayerServerCoreTest, RegisterUserShouldWork) {
   // Should be able to register a non-existing user
   EXPECT_TRUE(service_layer_server_core_.RegisterUser("test"));
+}
+
+// `RegisterUser` should fail for empty username
+TEST_F(ServiceLayerServerCoreTest, RegisterUserShouldFailForEmptyUsername) {
   // Username must not be blank
   EXPECT_FALSE(service_layer_server_core_.RegisterUser(""));
+}
+
+// `RegisterUser` should fail for duplicated username
+TEST_F(ServiceLayerServerCoreTest,
+       RegisterUserShouldFailForDuplicatedUsername) {
+  const std::string name_to_duplicate = "aNameToBeDuplicated";
+  EXPECT_TRUE(service_layer_server_core_.RegisterUser(name_to_duplicate));
+  // Username must not be blank
   // Same username cannot be registered twice
-  EXPECT_FALSE(service_layer_server_core_.RegisterUser("test"));
+  EXPECT_FALSE(service_layer_server_core_.RegisterUser(name_to_duplicate));
 }
 
 //  `Follow` should work
@@ -53,7 +65,7 @@ TEST_F(ServiceLayerServerCoreTest, FollowShouldReturnFalseForSelfFollowing) {
   EXPECT_FALSE(service_layer_server_core_.Follow("test4", "invalid_user4"));
 }
 
-// `Chirp` should work
+// `SendChirp` should work for all valid input
 TEST_F(ServiceLayerServerCoreTest, ChirpShouldWork) {
   // A exsting user should be able to chirp
   EXPECT_TRUE(service_layer_server_core_.RegisterUser("test3"));
@@ -65,9 +77,36 @@ TEST_F(ServiceLayerServerCoreTest, ChirpShouldWork) {
 
   // A exsting user should be able to reply
   Chirp reply_chirp;
-  status = service_layer_server_core_.SendChirp(reply_chirp, "test3", "hohoho");
+  status = service_layer_server_core_.SendChirp(reply_chirp, "test3", "hohoho",
+                                                start_chirp.id());
   EXPECT_EQ(ServiceLayerServerCore::CHIRP_SUCCEED, status);
   EXPECT_NE("", reply_chirp.id());
+}
+
+// `SendChirp` should return CHIRP_FAILED when username is invalid
+TEST_F(ServiceLayerServerCoreTest, ChirpShouldFailForInvalidUsername) {
+  // Empty useranme should fail
+  Chirp start_chirp;
+  ServiceLayerServerCore::ChirpStatus status =
+      service_layer_server_core_.SendChirp(start_chirp, "", "hohoho");
+  EXPECT_EQ(ServiceLayerServerCore::CHIRP_FAILED, status);
+
+  // Non-existing username should fail
+  Chirp reply_chirp;
+  status = service_layer_server_core_.SendChirp(
+      reply_chirp, "not existing username", "hohoho");
+  EXPECT_EQ(ServiceLayerServerCore::CHIRP_FAILED, status);
+}
+
+// `SendChirp` should return CHIRP_FAILED for a reply whose parent_id does not
+// exist
+TEST_F(ServiceLayerServerCoreTest, ChirpShouldFailForInvalidParentId) {
+  // Invalid parent_id should fail
+  Chirp start_chirp;
+  ServiceLayerServerCore::ChirpStatus status =
+      service_layer_server_core_.SendChirp(start_chirp, "", "hohoho",
+                                           "aNotExistingId");
+  EXPECT_EQ(ServiceLayerServerCore::CHIRP_FAILED, status);
 }
 
 // `Read` should work
@@ -90,9 +129,19 @@ TEST_F(ServiceLayerServerCoreTest, ReadShouldWork) {
   EXPECT_EQ(reply_chirp.text(), chirps[1].text());
 }
 
+// `Read` should return empty vector for invalid id
+TEST_F(ServiceLayerServerCoreTest, ReadShouldReturnEmptyVectorForInvalidId) {
+  // Should fail to read a empty id
+  std::vector<Chirp> chirps = service_layer_server_core_.Read("");
+  EXPECT_EQ(0, chirps.size());
+  // Should fail to read a not exisitng id
+  chirps = service_layer_server_core_.Read("aNotExistingId");
+  EXPECT_EQ(0, chirps.size());
+}
+
 // `Monitor` should work
 TEST_F(ServiceLayerServerCoreTest, MonitorShouldWork) {
-  // After a folling user post a chrip, the follower monitoring should be able
+  // After a folling user post a chirp, the follower monitoring should be able
   // receive it.
   EXPECT_TRUE(service_layer_server_core_.RegisterUser("test5"));
   EXPECT_TRUE(service_layer_server_core_.RegisterUser("test6"));
@@ -104,7 +153,7 @@ TEST_F(ServiceLayerServerCoreTest, MonitorShouldWork) {
                                          output_chirp = chirp;
                                          return false;
                                        },
-                                       1, 10);
+                                       0, 0);
   });
   Chirp parent_chirp;
   service_layer_server_core_.SendChirp(parent_chirp, "test5", "hohoho");
@@ -114,9 +163,51 @@ TEST_F(ServiceLayerServerCoreTest, MonitorShouldWork) {
   EXPECT_EQ(parent_chirp.id(), output_chirp.id());
 }
 
+// `Monitor` should work for multiple followings
+TEST_F(ServiceLayerServerCoreTest, MonitorShouldWorkForMultipleFollowing) {
+  // After a folling user post a chirp, the follower monitoring should be able
+  // receive it.
+  std::string username1 = "testMultipleFollowing1";
+  std::string username2 = "testMultipleFollowing2";
+  std::string username3 = "testMultipleFollowing3";
+  EXPECT_TRUE(service_layer_server_core_.RegisterUser(username1));
+  EXPECT_TRUE(service_layer_server_core_.RegisterUser(username2));
+  EXPECT_TRUE(service_layer_server_core_.RegisterUser(username3));
+  EXPECT_TRUE(service_layer_server_core_.Follow(username1, username2));
+  EXPECT_TRUE(service_layer_server_core_.Follow(username1, username3));
+  std::vector<Chirp> chirps;
+  std::thread monitoring([this, &chirps, username1]() {
+    service_layer_server_core_.Monitor(username1,
+                                       [&chirps](Chirp chirp) {
+                                         chirps.push_back(chirp);
+                                         return true;
+                                       },
+                                       0, 0);
+  });
+  Chirp parent_chirp1;
+  service_layer_server_core_.SendChirp(parent_chirp1, username2, "hohoho");
+  Chirp parent_chirp2;
+  service_layer_server_core_.SendChirp(parent_chirp2, username3, "hohoho");
+  // Wait for monitoring to end, after it is end outpu_chirp should equal to
+  // parent_chirp
+  monitoring.join();
+  EXPECT_EQ(2, chirps.size());
+  bool found_parent1 = false;
+  bool found_parent2 = false;
+  for (auto chirp : chirps) {
+    if (chirp.id() == parent_chirp1.id()) {
+      found_parent1 = true;
+    } else if (chirp.id() == parent_chirp2.id()) {
+      found_parent2 = true;
+    }
+  }
+  EXPECT_TRUE(found_parent1);
+  EXPECT_TRUE(found_parent2);
+}
+
 // `Monitor` should return false for invalid username and unregistered user
 TEST_F(ServiceLayerServerCoreTest, MonitorShouldReturnFalseOnInvalidInput) {
-  // After a folling user post a chrip, the follower monitoring should be able
+  // After a folling user post a chirp, the follower monitoring should be able
   // receive it.
   bool empty_ok = service_layer_server_core_.Monitor(
       "empty_user", [](Chirp chirp) { return false; });
@@ -124,6 +215,13 @@ TEST_F(ServiceLayerServerCoreTest, MonitorShouldReturnFalseOnInvalidInput) {
   bool unregistered_ok = service_layer_server_core_.Monitor(
       "unregistered_user", [](Chirp chirp) { return false; });
   EXPECT_FALSE(unregistered_ok);
+}
+
+// `Monitor` should return false for less than 0 interval
+TEST_F(ServiceLayerServerCoreTest, MonitorShouldReturnFalseOnInvalidInterval) {
+  bool zero_ok = service_layer_server_core_.Monitor(
+      "empty_user", [](Chirp chirp) { return false; }, 0);
+  EXPECT_FALSE(zero_ok);
 }
 }  // namespace chirpsystem
 

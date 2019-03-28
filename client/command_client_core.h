@@ -16,6 +16,8 @@ using std::endl;
 namespace chirpsystem {
 // A core implements command client's features for easier testing
 // handles fetching and distplying data
+// Since the public function of this file only prints its results to `cout`,
+// this class does not have its corresponding tests.
 class CommandClientCore {
  public:
   //  Only one operation will be run at each invocation
