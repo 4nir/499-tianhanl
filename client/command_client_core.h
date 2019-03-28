@@ -21,6 +21,15 @@ namespace chirpsystem {
 class CommandClientCore {
  public:
   //  Only one operation will be run at each invocation
+  // Cases:
+  // Not requires `user`
+  // register_user - triggers register user
+  // requires `user`
+  // `follow` - follows `follow` for `user`
+  // `repply` & `chirp` - sends `chirp` for `user` as a reply
+  // `chirp` - sends `chirp` for user as a new chirp
+  // `read` - reads `read` chirp
+  // `monitor` - monitor for `user`
   void Run(const std::string& register_user, const std::string& user,
            const std::string& chirp, const std::string& reply,
            const std::string& follow, const std::string& read, bool monitor);
