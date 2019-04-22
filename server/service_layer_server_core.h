@@ -75,6 +75,11 @@ class ServiceLayerServerCore {
                int interval = kDefaultMonitorInterval,
                int time_limit = kNoTimeLimit);
 
+  bool Stream(const std::string& hashtag,
+               const std::function<bool(Chirp)>& handle_response,
+               int interval = kDefaultMonitorInterval,
+               int time_limit = kNoTimeLimit);
+
  private:
   // Creates a Timestamp object populated with current UNIX timestamp.
   // The caller of this function should handle management of returned pointer
@@ -95,6 +100,10 @@ class ServiceLayerServerCore {
   void PollUpdates(const std::string& username,
                    const std::function<bool(Chirp)>& handle_response,
                    const int interval, const int time_limit);
+  
+  void PollUpdatesForStream(const std::string& hashtag,
+                   const std::function<bool(Chirp)>& handle_response,
+                   const int interval, const int time_limit);
 
   // Get new chiprs from users followed by `username` after `time` in
   // seconds
@@ -112,5 +121,8 @@ class ServiceLayerServerCore {
 
   //  Interface to communicate with store server
   StoreAdapter store_adapter_;
+
+  // Logs every chirp that goes through service layer
+  std::vector<Chirp> chirp_log_;
 };
 }  // namespace chirpsystem

@@ -115,6 +115,28 @@ Status ServiceLayerServiceImpl::monitor(ServerContext* context,
   return Status(StatusCode::INVALID_ARGUMENT,
                 "Cannot monitor for current user");
 }
+
+Status ServiceLayerServiceImpl::stream(ServerContext* context,
+                                        const StreamRequest* request,
+                                        ServerWriter<StreamReply>* writer) {
+  LOG(INFO) << "Received stream request for user: " << request->hashtag();
+  bool stream_ok = service_layer_server_core_.Stream(
+      request->hashtag(), [writer, this](Chirp chirp) {
+        StreamReply reply;
+        CloneChirp(chirp, reply.mutable_chirp());
+        // If stream is closed, terminate thread
+        return writer->Write(reply);
+      });
+
+  if (stream_ok) {
+    return Status::OK;
+  }
+
+  LOG(INFO) << "Cannot stream for user: " << request->hashtag();
+  return Status(StatusCode::INVALID_ARGUMENT,
+                "Cannot stream for current user");
+  
+}
 // Clones the content of chirp into mutable_chirp_pointer
 void ServiceLayerServiceImpl::CloneChirp(const Chirp& chirp,
                                          Chirp* mutable_chirp) {

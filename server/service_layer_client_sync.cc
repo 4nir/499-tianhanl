@@ -73,4 +73,20 @@ bool ServiceLayerClient::Monitor(const std::string& username,
   Status status = reader->Finish();
   return status.ok();
 }
+
+bool ServiceLayerClient::Stream(const std::string& hashtag,
+                                 std::function<void(Chirp)> handle_response) {
+  StreamRequest request;
+  StreamReply reply;
+  ClientContext context;
+  request.set_hashtag(hashtag);
+  std::unique_ptr<ClientReader<StreamReply>> reader(
+      stub_->stream(&context, request));
+  // Receiving new chirps
+  while (reader->Read(&reply)) {
+    handle_response(reply.chirp());
+  }
+  Status status = reader->Finish();
+  return status.ok();
+}
 }  // namespace chirpsystem

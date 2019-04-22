@@ -41,6 +41,9 @@ ServiceLayerServerCore::ChirpStatus ServiceLayerServerCore::SendChirp(
     curr_user_info.set_allocated_timestamp(MakeCurrentTimestamp());
     bool user_ok = store_adapter_.StoreUserInfo(curr_user_info);
     if (user_ok) {
+
+      //TODO: Add to chirp_log_ here
+      chirp_log_.push_back(chirp);
       return CHIRP_SUCCEED;
     }
 
@@ -96,6 +99,22 @@ bool ServiceLayerServerCore::Monitor(
   PollUpdates(username, handle_response, interval, time_limit);
   return true;
 }
+
+bool ServiceLayerServerCore::Stream(
+    const std::string& hashtag,
+    const std::function<bool(Chirp)>& handle_response, int interval,
+    int time_limit) {
+
+  // Interval must be >= 0
+  if (interval < 0) {
+    return false;
+  }
+
+  // Starts polling for Stream
+  PollUpdatesForStream(hashtag, handle_response, interval, time_limit);
+  return true;
+}
+
 
 Timestamp* ServiceLayerServerCore::MakeCurrentTimestamp() {
   Timestamp* timestamp = new Timestamp;
@@ -191,4 +210,12 @@ void ServiceLayerServerCore::PollUpdates(
     }
   }
 }
+
+  void ServiceLayerServerCore::PollUpdatesForStream(
+      const std::string& hashtag,
+      const std::function<bool(Chirp)>& handle_response, const int interval,
+      const int time_limit) {
+        std::cout << "ServiceLayerCore Polling for Stream COUT" << std::endl;
+        return;
+  }
 }  // namespace chirpsystem

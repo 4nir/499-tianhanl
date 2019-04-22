@@ -32,7 +32,7 @@ class CommandClientCore {
   // `monitor` - monitor for `user`
   void Run(const std::string& register_user, const std::string& user,
            const std::string& chirp, const std::string& reply,
-           const std::string& follow, const std::string& read, bool monitor);
+           const std::string& follow, const std::string& read, bool monitor, const std::string& stream);
 
  private:
   // Sends a chirp

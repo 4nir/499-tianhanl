@@ -4,7 +4,7 @@ namespace chirpsystem {
 void CommandClientCore::Run(const std::string& register_user,
                             const std::string& user, const std::string& chirp,
                             const std::string& reply, const std::string& follow,
-                            const std::string& read, bool monitor) {
+                            const std::string& read, bool monitor, const std::string& stream) {
   service_layer_client_.Init();
   if (register_user != "") {
     bool ok = service_layer_client_.RegisterUser(register_user);
@@ -20,7 +20,7 @@ void CommandClientCore::Run(const std::string& register_user,
   // Clients must have a username to be authorized for all activities
   if (user == "") {
     cout << "a username is required for chirp, reply, follow, read, and ";
-    cout << "monitor, plase provide a username using --usesr" << endl;
+    cout << "monitor, plase provide a username using --user" << endl;
     return;
   }
 
@@ -56,6 +56,14 @@ void CommandClientCore::Run(const std::string& register_user,
     // Use lambda to maintain reference to stream
     service_layer_client_.Monitor(user,
                                   [this](Chirp chirp) { PrintChirp(chirp); });
+  }
+
+  // Stream chirps --stream hashtag
+  if (stream != "") {
+    std::cout << "Calling stream() with hashtag: " << stream << std::endl;
+    service_layer_client_.Stream(stream,
+                                  [this](Chirp chirp) { PrintChirp(chirp); });
+    return;
   }
 }
 

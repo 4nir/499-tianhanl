@@ -20,6 +20,8 @@ using chirp::FollowReply;
 using chirp::FollowRequest;
 using chirp::MonitorReply;
 using chirp::MonitorRequest;
+using chirp::StreamReply;
+using chirp::StreamRequest;
 using chirp::ReadReply;
 using chirp::ReadRequest;
 using chirp::RegisterReply;
@@ -65,6 +67,9 @@ class ServiceLayerServiceImpl final : public ServiceLayer::Service {
   */
   Status monitor(ServerContext* context, const MonitorRequest* request,
                  ServerWriter<MonitorReply>* writer) override;
+
+  Status stream(ServerContext* context, const StreamRequest* request,
+                 ServerWriter<StreamReply>* writer) override;
 
  private:
   // Clones the content of chirp into mutable_chirp_pointer

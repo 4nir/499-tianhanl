@@ -20,6 +20,8 @@ using chirp::FollowReply;
 using chirp::FollowRequest;
 using chirp::MonitorReply;
 using chirp::MonitorRequest;
+using chirp::StreamReply;
+using chirp::StreamRequest;
 using chirp::ReadReply;
 using chirp::ReadRequest;
 using chirp::RegisterReply;
@@ -67,6 +69,9 @@ class ServiceLayerClient {
   // When a new chirp is received handle_response will be called with the chirp.
   // The order of reponse will from oldest chirp to latest chirp
   bool Monitor(const std::string& username,
+               std::function<void(Chirp)> handle_response);
+
+  bool Stream(const std::string& hashtag,
                std::function<void(Chirp)> handle_response);
 
  private:

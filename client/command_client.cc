@@ -18,6 +18,7 @@ DEFINE_string(reply, "",
 DEFINE_string(follow, "", "Starts following the given username");
 DEFINE_string(read, "", "Reads the chirp thread starting at the given id");
 DEFINE_bool(monitor, false, "Streams new chirps from those currently followed");
+DEFINE_string(stream, "", "Streams new chirps with");
 
 int main(int argc, char** argv) {
   // Start gflags and glog
@@ -25,5 +26,5 @@ int main(int argc, char** argv) {
   google::InitGoogleLogging(argv[0]);
   chirpsystem::CommandClientCore command_client_core;
   command_client_core.Run(FLAGS_register, FLAGS_user, FLAGS_chirp, FLAGS_reply,
-                          FLAGS_follow, FLAGS_read, FLAGS_monitor);
+                          FLAGS_follow, FLAGS_read, FLAGS_monitor, FLAGS_stream);
 }
