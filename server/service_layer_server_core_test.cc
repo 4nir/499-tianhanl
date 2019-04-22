@@ -223,6 +223,27 @@ TEST_F(ServiceLayerServerCoreTest, MonitorShouldReturnFalseOnInvalidInterval) {
       "empty_user", [](Chirp chirp) { return false; }, 0);
   EXPECT_FALSE(zero_ok);
 }
+
+// `Stream` should return false for invalid username and unregistered user
+TEST_F(ServiceLayerServerCoreTest, StreamShouldReturnFalseOnInvalidInput) {
+  // After a folling user post a chirp, the follower monitoring should be able
+  // receive it.
+  bool empty_ok = service_layer_server_core_.Stream(
+      "empty_user", [](Chirp chirp) { return false; });
+  EXPECT_FALSE(empty_ok);
+  bool unregistered_ok = service_layer_server_core_.Stream(
+      "unregistered_user", [](Chirp chirp) { return false; });
+  EXPECT_FALSE(unregistered_ok);
+}
+
+// `Stream` should return false for less than 0 interval
+TEST_F(ServiceLayerServerCoreTest, StreamShouldReturnFalseOnInvalidInterval) {
+  bool zero_ok = service_layer_server_core_.Stream(
+      "empty_user", [](Chirp chirp) { return false; }, 0);
+  EXPECT_FALSE(zero_ok);
+}
+
+
 }  // namespace chirpsystem
 
 int main(int argc, char** argv) {
