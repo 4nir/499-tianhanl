@@ -132,7 +132,7 @@ Status ServiceLayerServiceImpl::stream(ServerContext* context,
     return Status::OK;
   }
 
-  LOG(INFO) << "Cannot stream for user: " << request->hashtag();
+  LOG(INFO) << "Cannot stream for hashtag: " << request->hashtag();
   return Status(StatusCode::INVALID_ARGUMENT,
                 "Cannot stream for current user");
   
