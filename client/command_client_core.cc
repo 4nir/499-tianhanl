@@ -63,7 +63,6 @@ void CommandClientCore::Run(const std::string& register_user,
     std::cout << "Calling stream() with hashtag: " << stream << std::endl;
     service_layer_client_.Stream(stream,
                                   [this](Chirp chirp) { PrintChirp(chirp); });
-    return;
   }
 }
 

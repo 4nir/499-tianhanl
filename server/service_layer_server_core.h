@@ -8,6 +8,8 @@
 #include <thread>
 #include <unordered_set>
 #include <vector>
+#include <sstream>
+
 
 #include <grpc/support/log.h>
 #include <grpcpp/grpcpp.h>
@@ -118,6 +120,10 @@ class ServiceLayerServerCore {
   std::vector<Chirp> GetFollowingChirpsAfterTime(
       const std::string& curr_username, int start_time,
       std::unordered_set<std::string>& seen_ids);
+
+  std::vector<Chirp> GetHashtagChirpsAfterTime(int start_index, int end_index, const std::string& hashtag);
+
+  bool ContainsHashtag(const std::string& text, const std::string& hashtag);
 
   //  Interface to communicate with store server
   StoreAdapter store_adapter_;
