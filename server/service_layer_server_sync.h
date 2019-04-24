@@ -61,13 +61,12 @@ class ServiceLayerServiceImpl final : public ServiceLayer::Service {
   Status read(ServerContext* context, const ReadRequest* request,
               ReadReply* response);
 
-  /*
-   Streams chirps from all followed users
-   The order of reponse will from oldest chirp to latest chirp
-  */
+  // Streams chirps from all followed users
+  // The order of reponse will from oldest chirp to latest chirp
   Status monitor(ServerContext* context, const MonitorRequest* request,
                  ServerWriter<MonitorReply>* writer) override;
 
+  // Streams chirps that include particular hashtag
   Status stream(ServerContext* context, const StreamRequest* request,
                  ServerWriter<StreamReply>* writer) override;
 

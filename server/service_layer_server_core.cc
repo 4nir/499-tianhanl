@@ -36,17 +36,13 @@ ServiceLayerServerCore::ChirpStatus ServiceLayerServerCore::SendChirp(
   chirp.set_allocated_timestamp(current_timestamp);
   bool chirp_ok = store_adapter_.StoreChirp(chirp);
 
-  //TODO: push after error check?
   chirp_log_.push_back(chirp);
-  std::cout << "chirp_log_.size(): " << chirp_log_.size() << std::endl;
   if (chirp_ok) {
     UserInfo curr_user_info = store_adapter_.GetUserInfo(username);
     curr_user_info.add_chirp_id_s(chirp.id());
     curr_user_info.set_allocated_timestamp(MakeCurrentTimestamp());
     bool user_ok = store_adapter_.StoreUserInfo(curr_user_info);
     if (user_ok) {
-
-      //TODO: Add to chirp_log_ here
       return CHIRP_SUCCEED;
     }
 
@@ -107,7 +103,6 @@ bool ServiceLayerServerCore::Stream(
     const std::string& hashtag,
     const std::function<bool(Chirp)>& handle_response, int interval,
     int time_limit) {
-
   // Interval must be >= 0
   // if (interval < 0) {
   //   return false;
@@ -117,7 +112,6 @@ bool ServiceLayerServerCore::Stream(
   PollUpdatesForStream(hashtag, handle_response, interval, time_limit);
   return true;
 }
-
 
 Timestamp* ServiceLayerServerCore::MakeCurrentTimestamp() {
   Timestamp* timestamp = new Timestamp;
@@ -170,31 +164,30 @@ std::vector<Chirp> ServiceLayerServerCore::GetFollowingChirpsAfterTime(
 }
 
 std::vector<Chirp> ServiceLayerServerCore::GetHashtagChirpsAfterTime(
-  int start_index, int end_index, const std::string& hashtag){
+    int start_index, int end_index, const std::string& hashtag) {
   std::vector<Chirp> hashtag_chirps;
 
-  for(int i = start_index; i < end_index; i++){
+  for (int i = start_index; i < end_index; i++) {
     Chirp chirp = chirp_log_.at(i);
     // if chirp contains hashtag, append to hashtag_chirps
     std::string chirp_text = chirp.text();
     bool chirp_contains_hashtag = ContainsHashtag(chirp_text, hashtag);
-    if(chirp_contains_hashtag){
+    if (chirp_contains_hashtag) {
       hashtag_chirps.push_back(chirp);
     }
   }
-
   return hashtag_chirps;
 }
 
-bool ServiceLayerServerCore::ContainsHashtag(const std::string& text, const std::string& hashtag) {
-  std::cout << "At ContainsHashtag()" << std::endl;
+bool ServiceLayerServerCore::ContainsHashtag(const std::string& text,
+                                             const std::string& hashtag) {
   std::istringstream ss(text);
   std::string token;
   std::vector<std::string> chirp_vec;
-  while(std::getline(ss, token, ' ')){
-    if(token.at(0) == '#'){
+  while (std::getline(ss, token, ' ')) {
+    if (token.at(0) == '#') {
       token.erase(0, 1);
-      if(token == hashtag){
+      if (token == hashtag) {
         return true;
       }
     }
@@ -247,57 +240,56 @@ void ServiceLayerServerCore::PollUpdates(
   }
 }
 
-  void ServiceLayerServerCore::PollUpdatesForStream(
-      const std::string& hashtag,
-      const std::function<bool(Chirp)>& handle_response, const int interval,
-      const int time_limit) {
-        std::cout << "ServiceLayerCore Polling for Stream COUT" << std::endl;
-        
-        // Guard
-      if (interval < 0) {
-        return;
-       }
+void ServiceLayerServerCore::PollUpdatesForStream(
+    const std::string& hashtag,
+    const std::function<bool(Chirp)>& handle_response, const int interval,
+    const int time_limit) {
+  // Guard
+  if (interval < 0) {
+    return;
+  }
 
-      int start_time = GetCurrentTime();
-      int start_index = chirp_log_.size();
-      int end_index;
+  int start_time = GetCurrentTime();
+  int start_index = chirp_log_.size();
+  int end_index;
 
-      // Uses polling to check updates.
-      while (true) {
-        // wait interval seconds
-        std::this_thread::sleep_for(std::chrono::seconds(interval));
+  // Uses polling to check updates.
+  while (true) {
+    // wait interval seconds
+    std::this_thread::sleep_for(std::chrono::seconds(interval));
 
-        if(chirp_log_.size() <= start_index){
-          // No new chirps yet
-        } else {
-          // Reset end_index
-          int end_index = chirp_log_.size();
+    if (chirp_log_.size() <= start_index) {
+      // No new chirps yet
+    } else {
+      // Reset end_index
+      int end_index = chirp_log_.size();
 
-          //TODO: Takes in start_index, end_index, hashtag and returns vector of chirps 
-          std::vector<Chirp> chirps = GetHashtagChirpsAfterTime(start_index, end_index, hashtag);
+      // Takes in start_index, end_index, hashtag and returns vector of chirps
+      std::vector<Chirp> chirps =
+          GetHashtagChirpsAfterTime(start_index, end_index, hashtag);
 
-          // Reset start_index
-            start_index = end_index;
+      // Reset start_index
+      start_index = end_index;
 
-          // Now `chirps` has all chirps posted after last_query_seconds
-          if (chirps.size() > 0) {
-            // Chirps are sorted by creation time to ensure display order
-            std::sort(chirps.begin(), chirps.end(), Older);
+      // Now `chirps` has all chirps posted after last_query_seconds
+      if (chirps.size() > 0) {
+        // Chirps are sorted by creation time to ensure display order
+        std::sort(chirps.begin(), chirps.end(), Older);
 
-            for (Chirp chirp : chirps) {
-              bool ok = handle_response(chirp);
-              if (!ok) {
-                return;
-              }
-            }
-          }
-
-          // Checks if time limit has been reached
-          if (time_limit != kNoTimeLimit &&
-              GetCurrentTime() - start_time >= time_limit) {
+        for (Chirp chirp : chirps) {
+          bool ok = handle_response(chirp);
+          if (!ok) {
             return;
           }
         }
       }
+
+      // Checks if time limit has been reached
+      if (time_limit != kNoTimeLimit &&
+          GetCurrentTime() - start_time >= time_limit) {
+        return;
+      }
+    }
   }
+}
 }  // namespace chirpsystem

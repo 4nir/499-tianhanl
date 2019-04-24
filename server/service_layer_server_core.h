@@ -103,6 +103,9 @@ class ServiceLayerServerCore {
                    const std::function<bool(Chirp)>& handle_response,
                    const int interval, const int time_limit);
   
+  // Polling function used by stream to retrive chirps with specified hashtag
+  // Since without `time_limit` this function will run in infinite loop, it is
+  // suggested to use this function inside a thread.
   void PollUpdatesForStream(const std::string& hashtag,
                    const std::function<bool(Chirp)>& handle_response,
                    const int interval, const int time_limit);
@@ -121,8 +124,13 @@ class ServiceLayerServerCore {
       const std::string& curr_username, int start_time,
       std::unordered_set<std::string>& seen_ids);
 
+  // Gets a vector of relevent chirps that include the specified hashtag. 
+  // Using the chirp_log_, the function figures out if incoming chirps
+  // contain the hashtag. If so, it is streamed to the user.
   std::vector<Chirp> GetHashtagChirpsAfterTime(int start_index, int end_index, const std::string& hashtag);
 
+  // Function takes in a particular text, parses it, and returns a boolean
+  // according to whether it contains the specified hashtag.
   bool ContainsHashtag(const std::string& text, const std::string& hashtag);
 
   //  Interface to communicate with store server

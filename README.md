@@ -100,7 +100,23 @@ make
 ./client/command_client --user username --follow username2
 # Monitor
 ./client/command_client --user username --monitor
+# Stream
+./client/command_client --user username --stream <hashtag>
 ```
+
+## Note about Stream()
+
+Stream works according to the description "a hashtag is defined as any substring, separated by whitespace characters, where the substring begins with “#” and has one or more non-blank characters after it." For example:
+
+```bash
+./client/command_client --register barath
+./client/command_client --user barath --stream 499
+
+./client/command_client --register typical_cs_student
+./client/command_client --user typical_cs_student --chirp "#499 is so much fun!"
+```
+Don't forget the double quotes when chirping if you want to include multiple words in a chirp. This sequence of commands should result in
+a chirp streamed to barath.
 
 ## Testing
 

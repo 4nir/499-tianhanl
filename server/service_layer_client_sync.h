@@ -71,6 +71,9 @@ class ServiceLayerClient {
   bool Monitor(const std::string& username,
                std::function<void(Chirp)> handle_response);
 
+  // Streams chirps that contain specified hashtag, i.e. 
+  // a substring separated by whitespace characters, where the substring 
+  //begins with “#” and has one or more non-blank characters after it
   bool Stream(const std::string& hashtag,
                std::function<void(Chirp)> handle_response);
 
