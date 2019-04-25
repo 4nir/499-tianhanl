@@ -103,10 +103,16 @@ bool ServiceLayerServerCore::Stream(
     const std::string& hashtag,
     const std::function<bool(Chirp)>& handle_response, int interval,
     int time_limit) {
+
+  // Cannot stream if hashtag is empty
+  if (hashtag == "") {
+    return false;
+  }
+
   // Interval must be >= 0
-  // if (interval < 0) {
-  //   return false;
-  // }
+  if (interval < 0) {
+    return false;
+  }
 
   // Starts polling for Stream
   PollUpdatesForStream(hashtag, handle_response, interval, time_limit);
@@ -283,13 +289,12 @@ void ServiceLayerServerCore::PollUpdatesForStream(
           }
         }
       }
-
-      // Checks if time limit has been reached
+    }
+    // Checks if time limit has been reached
       if (time_limit != kNoTimeLimit &&
           GetCurrentTime() - start_time >= time_limit) {
         return;
       }
-    }
   }
 }
 }  // namespace chirpsystem
